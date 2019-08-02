@@ -23,6 +23,7 @@ namespace IncognitusBack.DataAccess.Data
         protected override void OnModelCreating(ModelBuilder builder)
         {
 
+
         }
 
     }
