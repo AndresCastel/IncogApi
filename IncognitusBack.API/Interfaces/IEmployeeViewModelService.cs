@@ -8,6 +8,10 @@ namespace IncognitusBack.API.Interfaces
 {
     public interface IEmployeeViewModelService
     {
-        Task<EmployeeViewModel> GetEmployeebyBarcode(string Barcode);
+        Task<EmployeeRegisterViewModel> GetEmployeebyBarcode(string Barcode);
+
+        Task<MessageResponseViewModel> RegisterEmployee(EmployeeRegisterViewModel Register);
+
+        
     }
 }
