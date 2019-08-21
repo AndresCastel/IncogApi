@@ -19,10 +19,12 @@ namespace IncognitusBack.DataAccess.Data
         public DbSet<Stuff> Stuff { get; set; }
         public DbSet<Stuff_Assign> Stuff_Assign { get; set; }
         public DbSet<Employee_Register> Employee_Register { get; set; }
+        public DbQuery<TimesheetsReport> TimesheetsReport { get; set; }
+        public DbSet<RosterC> RosterC { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
-
+            //builder.Query<TimesheetsReport>().ToView("TimesheetsReportView");
 
         }
 

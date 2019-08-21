@@ -4,14 +4,16 @@ using IncognitusBack.DataAccess.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace IncognitusBack.API.Migrations
 {
     [DbContext(typeof(IncogDbContext))]
-    partial class IncogDbContextModelSnapshot : ModelSnapshot
+    [Migration("20190807150810_test3")]
+    partial class test3
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -91,45 +93,6 @@ namespace IncognitusBack.API.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Rol");
-                });
-
-            modelBuilder.Entity("IncognitusBack.Core.Entities.RosterC", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<string>("Area");
-
-                    b.Property<string>("Break");
-
-                    b.Property<bool>("Confirm");
-
-                    b.Property<DateTime>("Date");
-
-                    b.Property<int>("Day");
-
-                    b.Property<string>("Employee");
-
-                    b.Property<string>("EndTime");
-
-                    b.Property<string>("LabourType");
-
-                    b.Property<string>("LookedIn");
-
-                    b.Property<string>("Payroll");
-
-                    b.Property<string>("Precint");
-
-                    b.Property<int>("ShiftNum");
-
-                    b.Property<string>("StartTime");
-
-                    b.Property<string>("Zone");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("RosterC");
                 });
 
             modelBuilder.Entity("IncognitusBack.Core.Entities.Stuff", b =>

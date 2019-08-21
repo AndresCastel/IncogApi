@@ -30,6 +30,14 @@ namespace IncognitusBack.API.Controllers
             return result;
         }
 
+        [HttpGet("timesheet")]
+        public async Task<List<TimesheetsReportViewModel>> GetEmployeesSignInOff()
+        {
+            var result = await _EmployeeService.GetEmployeesSignInOff();
+
+            return result;
+        }
+
         [HttpPost("register/")]
         public async Task<MessageResponseViewModel> RegisterEmployee(EmployeeRegisterViewModel EmployeeRegister)
         {

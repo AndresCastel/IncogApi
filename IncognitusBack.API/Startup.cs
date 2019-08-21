@@ -39,10 +39,10 @@ namespace IncognitusBack.API
                 c.SwaggerDoc("v1", new Info { Title = "IncogitusBack.API", Version = "v1" });
                 c.OperationFilter<MyHeaderFilter>();
             });
-
             services.AddScoped(typeof(IRepository<>), typeof(EfRepository<>));
             services.AddScoped(typeof(IAsyncRepository<>), typeof(EfRepository<>));
             services.AddScoped<IEmployeeViewModelService, EmployeeViewModelService>();
+            services.AddScoped<IChargesViewModelService, ChargesViewModelService>();
             services.AddScoped<IEmployeeService, EmployeeService>();
         }
 

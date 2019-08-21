@@ -11,5 +11,16 @@ namespace IncognitusBack.Core.Specifications
             : base(o => o.EmployeeId == EmployeerId)
         {
         }
+        public EmployeeRegisterSpecification(int EmployeerId, bool Active)
+            : base(o => o.EmployeeId == EmployeerId && o.Active== Active)
+        {
+        }
+
+        public EmployeeRegisterSpecification(bool Active)
+           : base(o => o.Active == Active)
+        {
+        }
+
+       
     }
 }
