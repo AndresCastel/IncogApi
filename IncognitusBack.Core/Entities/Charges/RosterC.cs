@@ -23,5 +23,6 @@ namespace IncognitusBack.Core.Entities
         public bool LookedIn { get; set; }
         [DefaultValue("Insert 0 Here")]
         public bool Confirm { get; set; }
+        public string EventName { get; set; }
     }
 }

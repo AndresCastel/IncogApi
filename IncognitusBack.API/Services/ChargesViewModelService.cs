@@ -16,15 +16,24 @@ namespace IncognitusBack.API.Services
         {
             _RosterRepository = RosterRepository;
         }
-        public async Task<MessageResponseViewModel> ChageRoster(List<RosterCViewModel> lstRoster)
+        public async Task<MessageResponseViewModel<RosterWM>> ChageRoster(List<RosterCViewModel> lstRoster)
         {
-            MessageResponseViewModel Message = new MessageResponseViewModel();
-            foreach (var item in lstRoster)
+            MessageResponseViewModel<RosterWM> Message = new MessageResponseViewModel<RosterWM>();
+            try
             {
-                await _RosterRepository.AddAsync(CreateRosterCFromViewModel(item));
+                foreach (var item in lstRoster)
+                {
+                    await _RosterRepository.AddAsync(CreateRosterCFromViewModel(item));
+                }
+                Message.Succesfull = true;
+                return Message;
             }
-            Message.Succesfull = true;
-            return Message;
+            catch (Exception ex)
+            {
+                Message.Succesfull = false;
+                Message.Message = ex.Message;
+                return Message;
+            }
         }
 
         private RosterC CreateRosterCFromViewModel(RosterCViewModel roster)
@@ -45,6 +54,7 @@ namespace IncognitusBack.API.Services
             viewModel.ShiftNum = roster.ShiftNum;
             viewModel.StartTime = roster.StartTime;
             viewModel.Zone = roster.Zone;
+            viewModel.EventName = roster.EventName;
             return viewModel;
         }
     }

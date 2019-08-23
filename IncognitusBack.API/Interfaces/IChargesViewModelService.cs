@@ -8,6 +8,6 @@ namespace IncognitusBack.API.Interfaces
 {
     public interface IChargesViewModelService
     {
-        Task<MessageResponseViewModel> ChageRoster(List<RosterCViewModel> lstRoster);
+        Task<MessageResponseViewModel<RosterWM>> ChageRoster(List<RosterCViewModel> lstRoster);
     }
 }

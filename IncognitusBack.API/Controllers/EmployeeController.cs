@@ -23,8 +23,9 @@ namespace IncognitusBack.API.Controllers
         }
 
         [HttpGet("get/{barcode}")]
-        public async Task<EmployeeRegisterViewModel> GetEmployee(string barcode)
+        public async Task<MessageResponseViewModel<EmployeeVsRosterVM>> GetEmployee(string barcode)
         {
+
             var result = await _EmployeeService.GetEmployeebyBarcode(barcode);
 
             return result;
@@ -39,7 +40,7 @@ namespace IncognitusBack.API.Controllers
         }
 
         [HttpPost("register/")]
-        public async Task<MessageResponseViewModel> RegisterEmployee(EmployeeRegisterViewModel EmployeeRegister)
+        public async Task<MessageResponseViewModel<EmployeeRegisterViewModel>> RegisterEmployee(EmployeeRegisterViewModel EmployeeRegister)
         {
             var result = await _EmployeeService.RegisterEmployee(EmployeeRegister);
 

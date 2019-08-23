@@ -21,7 +21,7 @@ namespace IncognitusBack.API.Controllers
         }
 
         [HttpPost("Roster/")]
-        public async Task<MessageResponseViewModel> ChageRoster(RosterWM Roster)
+        public async Task<MessageResponseViewModel<RosterWM>> ChageRoster(RosterWM Roster)
         {
             var result = await _ChargesService.ChageRoster(Roster.lstRoster);
 

@@ -14,8 +14,9 @@ namespace IncognitusBack.Core.Entities
         public int Type_RegisterId { get; set; }
         [ForeignKey("Type_RegisterId")]
         public Type_Register Type_Register { get; set; }       
-        public DateTime SignIn { get; set; }
-        public DateTime Signoff { get; set; }
+        public DateTime Day { get; set; }
+        public string StartTime { get; set; }
+        public string EndTime { get; set; }
         public int Break { get; set; }
         [DefaultValue("Insert 1 Here")]
         public bool Active { get; set; }

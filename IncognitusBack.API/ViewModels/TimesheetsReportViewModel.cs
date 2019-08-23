@@ -11,8 +11,9 @@ namespace IncognitusBack.API.ViewModels
         public string Payroll { get; set; }
         public string Name { get; set; }
         public string LastName { get; set; }
-        public DateTime Sign_In { get; set; }
-        public DateTime Sign_Off { get; set; }
+        public DateTime Day { get; set; }
+        public string StartTime { get; set; }
+        public string EndTime { get; set; }
         public int Break { get; set; }
     }
 }

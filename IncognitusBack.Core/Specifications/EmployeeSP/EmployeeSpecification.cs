@@ -11,5 +11,9 @@ namespace IncognitusBack.Core.Specifications
             : base(o => o.Barcode == Barcode)
         {
         }
+        public EmployeeSpecification(int id)
+            : base(o => o.Id == id)
+        {
+        }
     }
 }

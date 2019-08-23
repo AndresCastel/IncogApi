@@ -10,9 +10,9 @@ namespace IncognitusBack.API.Interfaces
     {
         Task<List<TimesheetsReportViewModel>> GetEmployeesSignInOff();
 
-        Task<EmployeeRegisterViewModel> GetEmployeebyBarcode(string Barcode);
+        Task<MessageResponseViewModel<EmployeeVsRosterVM>> GetEmployeebyBarcode(string Barcode);
 
-        Task<MessageResponseViewModel> RegisterEmployee(EmployeeRegisterViewModel Register);
+        Task<MessageResponseViewModel<EmployeeRegisterViewModel>> RegisterEmployee(EmployeeRegisterViewModel Register);
 
         
     }

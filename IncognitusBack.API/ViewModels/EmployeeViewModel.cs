@@ -12,6 +12,7 @@ namespace IncognitusBack.API.ViewModels
         public string MiddleName { get; set; }
         public string LastName { get; set; }
         public string Barcode { get; set; }
+        public string Payroll { get; set; }
         public string Email { get; set; }
         public int RolId { get; set; }
         public bool Active { get; set; }

@@ -3,6 +3,7 @@ using IncognitusBack.API.ViewModels;
 using IncognitusBack.Core.Entities;
 using IncognitusBack.Core.Interfaces;
 using IncognitusBack.Core.Specifications;
+using IncognitusBack.Core.Specifications.RosterSP;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,32 +13,48 @@ namespace IncognitusBack.API.Services
 {
     public class EmployeeViewModelService : IEmployeeViewModelService
     {
+        private readonly IAsyncRepository<RosterC> _RosterRepository;
         private readonly IAsyncRepository<Employee> _employeeRepository;
         private readonly IAsyncRepository<Employee_Register> _employee_RegisterRepository;
         private readonly IAsyncRepository<Stuff_Assign> _stuffAssingRepository;
         public EmployeeViewModelService(IAsyncRepository<Employee> employeeRepository, IAsyncRepository<Employee_Register> employee_RegisterRepository,
-           IAsyncRepository<Stuff_Assign> StuffAssingRepository)
+           IAsyncRepository<Stuff_Assign> StuffAssingRepository, IAsyncRepository<RosterC> RosterRepository)
         {
+            _RosterRepository = RosterRepository;
             _stuffAssingRepository = StuffAssingRepository;
             _employeeRepository = employeeRepository;
             _employee_RegisterRepository = employee_RegisterRepository;
         }
-        public async Task<EmployeeRegisterViewModel> GetEmployeebyBarcode(string Barcode)
+        public async Task<MessageResponseViewModel<EmployeeVsRosterVM>> GetEmployeebyBarcode(string Barcode)
         {
-            //var abc = await  _TimeRepository.ListAllAsync();
-            EmployeeRegisterViewModel employRegister = new EmployeeRegisterViewModel();
+            MessageResponseViewModel<EmployeeVsRosterVM> ReturnMessage = new MessageResponseViewModel<EmployeeVsRosterVM>();
+
+            EmployeeVsRosterVM employRegister = new EmployeeVsRosterVM();
             //Get Employee
             var EmployeeSpec = new EmployeeSpecification(Barcode);
             var employ = (await _employeeRepository.ListAsync(EmployeeSpec)).FirstOrDefault();
-
-            //Get Register Employee
+            
             if (employ != null)
             {
+               
+                //Get Roster by employ
+                var EmployeeRoster = new RosterSpecification(employ.Payroll, DateTime.Now.Date);
+                var employroster = (await _RosterRepository.ListAsync(EmployeeRoster)).FirstOrDefault();
+                if (employroster == null)
+                {
+                    if (employ.RolId != 1)
+                    {
+                        ReturnMessage.Succesfull = false;
+                        ReturnMessage.Message = employ.Name + " " + employ.LastName + " Does not have any shift today";
+                        return ReturnMessage;
+                    }                   
+                }
+                //Get if that employ has 
                 var EmployeeRegisterSpec = new EmployeeRegisterSpecification(employ.Id, true);
                 var employeeregister = (await _employee_RegisterRepository.ListAsync(EmployeeRegisterSpec)).FirstOrDefault();
                 if (employeeregister != null)
                 {
-                    employRegister = CreateViewModelFromEmployeeRegister(employeeregister);
+                    employRegister.employregister = CreateViewModelFromEmployeeRegister(employeeregister);
                     var StuffAsign = new StuffAssignSpecification(employeeregister.Id);
                     var stuffassing = (await _stuffAssingRepository.ListAsync(StuffAsign));
                     List<StuffAssignViewModel> lst = new List<StuffAssignViewModel>();
@@ -46,14 +63,32 @@ namespace IncognitusBack.API.Services
                     {
                         lst.Add(CreateViewModelFromStuff(item));
                     }
-
-                    employRegister.lstStuffAssig = lst;
+                    employRegister.employregister.lstStuffAssig = lst;
+                    employRegister.employregister.Employee = CreateViewModelFromEmployee(employ);
                 }
-                employRegister.Employee = CreateViewModelFromEmployee(employ);
-                               
-            }
+                else
+                {
+                    employRegister.employregister = new EmployeeRegisterViewModel();
+                    employRegister.employregister.Employee = CreateViewModelFromEmployee(employ);
+                }
+                
+                employRegister.employRoster = CreateViewModelFromRoster(employroster);
+                
+                
+                ReturnMessage.Data = employRegister;
+                ReturnMessage.Succesfull = true;
 
-            return employRegister;
+            }
+            else
+            {
+                if (employ.Rol.Id != 1)
+                {
+                    ReturnMessage.Succesfull = false;
+                    ReturnMessage.Message = "This User does not exist in the DataBase";
+                }
+            }
+            
+            return ReturnMessage;
         }
 
         //public async Task<bool> GetEmployeesFromExcel()
@@ -64,22 +99,23 @@ namespace IncognitusBack.API.Services
         //    Microsoft.Office.Interop.Excel.Range xlRange = xlWorksheet.UsedRange;
         //}
 
-        public async Task<MessageResponseViewModel> RegisterEmployee(EmployeeRegisterViewModel Register)
+        public async Task<MessageResponseViewModel<EmployeeRegisterViewModel>> RegisterEmployee(EmployeeRegisterViewModel Register)
         {
-            MessageResponseViewModel resultMessage = new MessageResponseViewModel();
+            MessageResponseViewModel<EmployeeRegisterViewModel> resultMessage = new MessageResponseViewModel<EmployeeRegisterViewModel>();
             //Validate if there is a register previously
             var Registerespe = new EmployeeRegisterSpecification(Register.EmployeeId, true);
             var UltimateRegister = (await _employee_RegisterRepository.ListAsync(Registerespe)).FirstOrDefault();
+           
 
             if (UltimateRegister == null)
             {
                 Employee_Register employee = new Employee_Register()
                 {
                     EmployeeId = Register.EmployeeId,
-                    Active = Register.Active
-                ,
+                    Active = Register.Active,     
+                    Day = Register.Day,
                     Type_RegisterId = Register.Type_RegisterId,
-                    SignIn = Register.SignIn
+                    StartTime = Register.StartTime
                 };
                 employee = await _employee_RegisterRepository.AddAsync(employee);
 
@@ -100,8 +136,8 @@ namespace IncognitusBack.API.Services
             {
                 if (Register.Active)
                 {
-                    if (Register.SignIn != DateTime.MinValue) { UltimateRegister.SignIn = Register.SignIn; }
-                    if (Register.SignOff != DateTime.MinValue) { UltimateRegister.Signoff = Register.SignOff; }                       
+                    if (Register.Day != DateTime.MinValue) { UltimateRegister.StartTime = Register.StartTime; }
+                    if (Register.Day != DateTime.MinValue) { UltimateRegister.EndTime = Register.EndTime; }                       
                     UltimateRegister.Active = true; 
                     UltimateRegister.Type_RegisterId = Register.Type_RegisterId;
                     await _employee_RegisterRepository.UpdateAsync(UltimateRegister);
@@ -134,11 +170,13 @@ namespace IncognitusBack.API.Services
                         Active = true
                ,
                         Type_RegisterId = 1,
-                        SignIn = DateTime.MinValue
+                        //TODO: Andres create funtion to convert hours to military hours whitout : points
+                       // StartTime = DateTime.MinValue
                     };
                     employeenew = await _employee_RegisterRepository.AddAsync(employeenew);
+                    UltimateRegister.Day = Register.Day.Date;
                     UltimateRegister.Break = Register.Break;
-                    UltimateRegister.Signoff = Register.SignOff;
+                    UltimateRegister.EndTime = Register.EndTime;
                     UltimateRegister.Type_RegisterId = 2;
                     UltimateRegister.Active = false;
                     await _employee_RegisterRepository.UpdateAsync(UltimateRegister);
@@ -182,7 +220,30 @@ namespace IncognitusBack.API.Services
             viewModel.LastName = employee.LastName;
             viewModel.Email = employee.Email;
             viewModel.RolId = employee.RolId;
+            viewModel.Payroll = employee.Payroll;
             viewModel.Active = employee.Active;
+            return viewModel;
+        }
+
+        private RosterCViewModel CreateViewModelFromRoster(RosterC Roster)
+        {
+            var viewModel = new RosterCViewModel();
+            viewModel.Id = Roster.Id;
+            viewModel.Area = Roster.Area;
+            viewModel.Break = Roster.Break;
+            viewModel.Confirm = Roster.Confirm;
+            viewModel.Date = Roster.Date;
+            viewModel.Day = Roster.Day;
+            viewModel.Payroll = Roster.Payroll;
+            viewModel.Employee = Roster.Employee;
+            viewModel.EndTime = Roster.EndTime;
+            viewModel.EventName = Roster.EventName;
+            viewModel.LabourType = Roster.LabourType;
+            viewModel.LookedIn = Roster.LookedIn;
+            viewModel.Precint = Roster.Precint;
+            viewModel.ShiftNum = Roster.ShiftNum;
+            viewModel.StartTime = Roster.StartTime;
+            viewModel.Zone = Roster.Zone;
             return viewModel;
         }
 
@@ -190,8 +251,9 @@ namespace IncognitusBack.API.Services
         {
             var viewModel = new EmployeeRegisterViewModel();
             viewModel.Id = employeereg.Id;
-            viewModel.SignIn = employeereg.SignIn;
-            viewModel.SignOff = employeereg.Signoff;
+            viewModel.StartTime = employeereg.StartTime;
+            viewModel.EndTime = employeereg.EndTime;
+            viewModel.Day = employeereg.Day;
             viewModel.Type_RegisterId = employeereg.Type_RegisterId;
             viewModel.Active = employeereg.Active;
             return viewModel;
@@ -201,8 +263,9 @@ namespace IncognitusBack.API.Services
         {
             var viewModel = new Employee_Register();
             viewModel.Id = employeereg.Id;
-            viewModel.SignIn = employeereg.SignIn;
-            viewModel.Signoff = employeereg.SignOff;
+            viewModel.StartTime = employeereg.StartTime;
+            viewModel.EndTime = employeereg.EndTime;
+            viewModel.Day = employeereg.Day;            
             viewModel.Type_RegisterId = employeereg.Type_RegisterId;
             viewModel.Active = employeereg.Active;
             return viewModel;
@@ -243,8 +306,9 @@ namespace IncognitusBack.API.Services
                         time.LastName = emp.LastName;
                         time.Name = emp.Name;
                         time.Payroll = emp.Payroll;
-                        time.Sign_In = item.SignIn;
-                        time.Sign_Off = item.Signoff;
+                        time.StartTime = item.StartTime;
+                        time.EndTime = item.EndTime;
+                        time.Day = item.Day;
                         lst.Add(CreateViewModelFromTimesheets(time));
                     }
                     
@@ -261,8 +325,9 @@ namespace IncognitusBack.API.Services
             viewModel.LastName = Timesh.LastName;
             viewModel.Break = Timesh.Break;
             viewModel.Payroll = Timesh.Payroll;
-            viewModel.Sign_In = Timesh.Sign_In;
-            viewModel.Sign_Off = Timesh.Sign_Off;
+            viewModel.StartTime = Timesh.StartTime;
+            viewModel.EndTime = Timesh.EndTime;
+            viewModel.Day = Timesh.Day;
             return viewModel;
         }
     }

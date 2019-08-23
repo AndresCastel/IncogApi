@@ -19,6 +19,7 @@ namespace IncognitusBack.API.ViewModels
         public string LabourType { get; set; }
         public string Employee { get; set; }
         public string Payroll { get; set; }
+        public string EventName { get; set; }
         public bool LookedIn { get; set; }
         public bool Confirm { get; set; }
     }
