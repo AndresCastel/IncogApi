@@ -12,6 +12,7 @@ namespace IncognitusBack.API.ViewModels
         public int Type_RegisterId { get; set; }
         public DateTime Day { get; set; }
         public string StartTime { get; set; }
+        public string Payroll { get; set; }
         public string EndTime { get; set; }
         public int Break { get; set; }
         public bool Active { get; set; }

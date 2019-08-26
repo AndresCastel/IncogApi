@@ -17,6 +17,7 @@ namespace IncognitusBack.Core.Entities
         public DateTime Day { get; set; }
         public string StartTime { get; set; }
         public string EndTime { get; set; }
+        public string Payroll { get; set; }
         public int Break { get; set; }
         [DefaultValue("Insert 1 Here")]
         public bool Active { get; set; }

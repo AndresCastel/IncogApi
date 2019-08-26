@@ -81,23 +81,12 @@ namespace IncognitusBack.API.Services
             }
             else
             {
-                if (employ.Rol.Id != 1)
-                {
                     ReturnMessage.Succesfull = false;
                     ReturnMessage.Message = "This User does not exist in the DataBase";
-                }
             }
             
             return ReturnMessage;
         }
-
-        //public async Task<bool> GetEmployeesFromExcel()
-        //{
-        //    Microsoft.Office.Interop.Excel.Application xlApp = new Microsoft.Office.Interop.Excel.Application();
-        //    Microsoft.Office.Interop.Excel.Workbook xlWorkbook = xlApp.Workbooks.Open(@"sandbox_test.xlsx");
-        //    Microsoft.Office.Interop.Excel._Worksheet xlWorksheet = xlWorkbook.Sheets[1];
-        //    Microsoft.Office.Interop.Excel.Range xlRange = xlWorksheet.UsedRange;
-        //}
 
         public async Task<MessageResponseViewModel<EmployeeRegisterViewModel>> RegisterEmployee(EmployeeRegisterViewModel Register)
         {
@@ -112,8 +101,9 @@ namespace IncognitusBack.API.Services
                 Employee_Register employee = new Employee_Register()
                 {
                     EmployeeId = Register.EmployeeId,
-                    Active = Register.Active,     
+                    Active = Register.Active,
                     Day = Register.Day,
+                    Payroll = Register.Payroll,
                     Type_RegisterId = Register.Type_RegisterId,
                     StartTime = Register.StartTime
                 };
@@ -134,73 +124,98 @@ namespace IncognitusBack.API.Services
             }
             else
             {
-                if (Register.Active)
+                switch (Register.Type_RegisterId)
                 {
-                    if (Register.Day != DateTime.MinValue) { UltimateRegister.StartTime = Register.StartTime; }
-                    if (Register.Day != DateTime.MinValue) { UltimateRegister.EndTime = Register.EndTime; }                       
-                    UltimateRegister.Active = true; 
-                    UltimateRegister.Type_RegisterId = Register.Type_RegisterId;
-                    await _employee_RegisterRepository.UpdateAsync(UltimateRegister);
-                    var StuffAsign = new StuffAssignSpecification(UltimateRegister.Id);
-                    var stuffassing = (await _stuffAssingRepository.ListAsync(StuffAsign));
-                    foreach (var item in stuffassing)
-                    {
-                        await _stuffAssingRepository.DeleteAsync(item);
-                    }
-
-                    foreach (var item in Register.lstStuffAssig)
-                    {
-                        Stuff_Assign stuffassg = new Stuff_Assign()
+                    //SignIn
+                    case 1:
+                        UltimateRegister.Type_RegisterId = Register.Type_RegisterId;
+                        UltimateRegister.StartTime = Register.StartTime;
+                        UltimateRegister.Payroll = Register.Payroll;
+                        UltimateRegister.Active = Register.Active;
+                        await _employee_RegisterRepository.UpdateAsync(UltimateRegister);
+                        var StuffAsign = new StuffAssignSpecification(UltimateRegister.Id);
+                        var stuffassing = (await _stuffAssingRepository.ListAsync(StuffAsign));
+                        foreach (var item in stuffassing)
                         {
-                            Active = item.Active,
-                            Employee_RegisterId = Register.Id
-                        ,
-                            StuffId = item.StuffId,
-                            Quantity = item.Quantity
-                        };
-                        await _stuffAssingRepository.AddAsync(stuffassg);
-                    }
-
-                }
-                else
-                {
-                    Employee_Register employeenew = new Employee_Register()
-                    {
-                        EmployeeId = Register.EmployeeId,
-                        Active = true
-               ,
-                        Type_RegisterId = 1,
-                        //TODO: Andres create funtion to convert hours to military hours whitout : points
-                       // StartTime = DateTime.MinValue
-                    };
-                    employeenew = await _employee_RegisterRepository.AddAsync(employeenew);
-                    UltimateRegister.Day = Register.Day.Date;
-                    UltimateRegister.Break = Register.Break;
-                    UltimateRegister.EndTime = Register.EndTime;
-                    UltimateRegister.Type_RegisterId = 2;
-                    UltimateRegister.Active = false;
-                    await _employee_RegisterRepository.UpdateAsync(UltimateRegister);
-                    var StuffAsign = new StuffAssignSpecification(UltimateRegister.Id);
-                    var stuffassing = (await _stuffAssingRepository.ListAsync(StuffAsign));
-                    foreach (var item in stuffassing)
-                    {
-                        await _stuffAssingRepository.DeleteAsync(item);
-                    }
-
-                    foreach (var item in Register.lstStuffAssig)
-                    {
-                        Stuff_Assign stuffassg = new Stuff_Assign()
+                            await _stuffAssingRepository.DeleteAsync(item);
+                        }
+                        foreach (var item in Register.lstStuffAssig)
                         {
-                            Active = item.Active,
-                            Employee_RegisterId = employeenew.Id
-                        ,
-                            StuffId = item.StuffId,
-                            Quantity = item.Quantity
+                            Stuff_Assign stuffassg = new Stuff_Assign()
+                            {
+                                Active = item.Active,
+                                Employee_RegisterId = UltimateRegister.Id
+                            ,
+                                StuffId = item.StuffId,
+                                Quantity = item.Quantity
+                            };
+                            await _stuffAssingRepository.AddAsync(stuffassg);
+                        }
+                        break;
+                    //signOff
+                    case 2: 
+                        //Update Last register
+                        UltimateRegister.Type_RegisterId = Register.Type_RegisterId;
+                        UltimateRegister.Break = Register.Break;
+                        UltimateRegister.Payroll = Register.Payroll;
+                        UltimateRegister.EndTime = Register.EndTime;
+                        UltimateRegister.Active = false;
+                        await _employee_RegisterRepository.UpdateAsync(UltimateRegister);
+                        //Create a new Register
+                        Employee_Register employee = new Employee_Register()
+                        {
+                            EmployeeId = Register.EmployeeId,
+                            Active = true,
+                            Day = Register.Day,
+                            Payroll = Register.Payroll,
+                            Type_RegisterId = Register.Type_RegisterId
                         };
-                        await _stuffAssingRepository.AddAsync(stuffassg);
-                    }
+                        employee = await _employee_RegisterRepository.AddAsync(employee);
+                        var StuffAsignOff = new StuffAssignSpecification(UltimateRegister.Id);
+                        var stuffassingoff = (await _stuffAssingRepository.ListAsync(StuffAsignOff));
+                        foreach (var item in stuffassingoff)
+                        {
+                            await _stuffAssingRepository.DeleteAsync(item);
+                        }
+                        foreach (var item in Register.lstStuffAssig)
+                        {
+                            Stuff_Assign stuffassg = new Stuff_Assign()
+                            {
+                                Active = item.Active,
+                                Employee_RegisterId = employee.Id
+                            ,
+                                StuffId = item.StuffId,
+                                Quantity = item.Quantity
+                            };
+                            await _stuffAssingRepository.AddAsync(stuffassg);
+                        }
+                        break;
 
+                    //Equipment
+                    case 3:                        
+                        var StuffAsignEquip = new StuffAssignSpecification(UltimateRegister.Id);
+                        var stuffassingEquip = (await _stuffAssingRepository.ListAsync(StuffAsignEquip));
+                        foreach (var item in stuffassingEquip)
+                        {
+                            await _stuffAssingRepository.DeleteAsync(item);
+                        }
+                        foreach (var item in Register.lstStuffAssig)
+                        {
+                            Stuff_Assign stuffassg = new Stuff_Assign()
+                            {
+                                Active = item.Active,
+                                Employee_RegisterId = UltimateRegister.Id
+                            ,
+                                StuffId = item.StuffId,
+                                Quantity = item.Quantity
+                            };
+                            await _stuffAssingRepository.AddAsync(stuffassg);
+                        }
+                        break;
+                    default:
+                        break;
                 }
+
             }
 
 
@@ -253,6 +268,7 @@ namespace IncognitusBack.API.Services
             viewModel.Id = employeereg.Id;
             viewModel.StartTime = employeereg.StartTime;
             viewModel.EndTime = employeereg.EndTime;
+            viewModel.Payroll = employeereg.Payroll;
             viewModel.Day = employeereg.Day;
             viewModel.Type_RegisterId = employeereg.Type_RegisterId;
             viewModel.Active = employeereg.Active;
@@ -265,7 +281,8 @@ namespace IncognitusBack.API.Services
             viewModel.Id = employeereg.Id;
             viewModel.StartTime = employeereg.StartTime;
             viewModel.EndTime = employeereg.EndTime;
-            viewModel.Day = employeereg.Day;            
+            viewModel.Day = employeereg.Day;
+            viewModel.Payroll = employeereg.Payroll;
             viewModel.Type_RegisterId = employeereg.Type_RegisterId;
             viewModel.Active = employeereg.Active;
             return viewModel;
