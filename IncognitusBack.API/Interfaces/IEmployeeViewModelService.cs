@@ -14,6 +14,6 @@ namespace IncognitusBack.API.Interfaces
 
         Task<MessageResponseViewModel<EmployeeRegisterViewModel>> RegisterEmployee(EmployeeRegisterViewModel Register);
 
-        
+        Task<MessageResponseViewModel<AllStuffVM>> GetStuffAsig();
     }
 }

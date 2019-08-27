@@ -11,5 +11,6 @@ namespace IncognitusBack.Core.Specifications
             : base(o => o.Employee_RegisterId == Employee_RegisterId)
         {
         }
+
     }
 }

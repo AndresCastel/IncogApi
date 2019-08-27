@@ -25,6 +25,41 @@ namespace IncognitusBack.API.Services
             _employeeRepository = employeeRepository;
             _employee_RegisterRepository = employee_RegisterRepository;
         }
+
+        public async Task<MessageResponseViewModel<AllStuffVM>> GetStuffAsig()
+        {
+            MessageResponseViewModel<AllStuffVM> ReturnMessage = new MessageResponseViewModel<AllStuffVM>();
+
+            try
+            {
+                AllStuffVM AllStuff = new AllStuffVM();
+                AllStuff.Stuff = new List<StuffAssignViewModel>();
+                //Get All Stuff Assigned
+                var lststuff_Assigns = await _stuffAssingRepository.ListAllAsync();
+                if (lststuff_Assigns != null)
+                {
+
+                    foreach (var item in lststuff_Assigns)
+                    {
+                        StuffAssignViewModel stuffVM = new StuffAssignViewModel();
+                        stuffVM = CreateViewModelFromStuff(item);
+                        AllStuff.Stuff.Add(stuffVM);
+                    }
+
+                }
+                ReturnMessage.Succesfull = true;
+                ReturnMessage.Data = AllStuff;
+            }
+            catch (Exception ex)
+            {
+
+                ReturnMessage.Succesfull = false;
+                ReturnMessage.Data = null;
+            }
+            
+            return ReturnMessage;
+        }
+
         public async Task<MessageResponseViewModel<EmployeeVsRosterVM>> GetEmployeebyBarcode(string Barcode)
         {
             MessageResponseViewModel<EmployeeVsRosterVM> ReturnMessage = new MessageResponseViewModel<EmployeeVsRosterVM>();
@@ -50,7 +85,7 @@ namespace IncognitusBack.API.Services
                     {
                         if(employeeregister!=null)
                         {
-                            if(employeeregister.Type_RegisterId == 2 && employeeregister.EndTime != null)
+                            if(employeeregister.Type_RegisterId == 2 && employeeregister.EndTime == null)
                             {
                                 ReturnMessage.Succesfull = false;
                                 ReturnMessage.Message = employ.Name + " " + employ.LastName + " Does not have any shift today";
