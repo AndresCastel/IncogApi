@@ -12,9 +12,11 @@ namespace IncognitusBack.API.Services
     public class ChargesViewModelService : IChargesViewModelService
     {
         private readonly IAsyncRepository<RosterC> _RosterRepository;
-        public ChargesViewModelService(IAsyncRepository<RosterC> RosterRepository)
+        private readonly IAsyncRepository<Employee> _employRepository;
+        public ChargesViewModelService(IAsyncRepository<RosterC> RosterRepository, IAsyncRepository<Employee> EmployRepository)
         {
             _RosterRepository = RosterRepository;
+            _employRepository = EmployRepository;
         }
         public async Task<MessageResponseViewModel<RosterWM>> ChageRoster(List<RosterCViewModel> lstRoster)
         {
@@ -34,6 +36,41 @@ namespace IncognitusBack.API.Services
                 Message.Message = ex.Message;
                 return Message;
             }
+        }
+
+        public async Task<MessageResponseViewModel<EmployeesChargeMW>> ChageEmployees(List<EmployeeViewModel> lstEmployees)
+        {
+            MessageResponseViewModel<EmployeesChargeMW> Message = new MessageResponseViewModel<EmployeesChargeMW>();
+            try
+            {
+                foreach (var item in lstEmployees)
+                {
+                    await _employRepository.AddAsync(CreateEmployeesFromViewModel(item));
+                }
+                Message.Succesfull = true;
+                return Message;
+            }
+            catch (Exception ex)
+            {
+                Message.Succesfull = false;
+                Message.Message = ex.Message;
+                return Message;
+            }
+        }
+
+        private Employee CreateEmployeesFromViewModel(EmployeeViewModel employ)
+        {
+            var viewModel = new Employee();
+            viewModel.Id = employ.Id;
+            viewModel.Active = employ.Active;
+            viewModel.Barcode = employ.Barcode;
+            viewModel.Email = employ.Email;
+            viewModel.LastName = employ.LastName;
+            viewModel.MiddleName = employ.MiddleName;
+            viewModel.Name = employ.Name;
+            viewModel.Payroll = employ.Payroll;
+            viewModel.RolId = employ.RolId;
+            return viewModel;
         }
 
         private RosterC CreateRosterCFromViewModel(RosterCViewModel roster)

@@ -27,5 +27,13 @@ namespace IncognitusBack.API.Controllers
 
             return result;
         }
+
+        [HttpPost("Employees/")]
+        public async Task<MessageResponseViewModel<EmployeesChargeMW>> ChageEmployees(EmployeesChargeMW EmployeesCharge)
+        {
+            var result = await _ChargesService.ChageEmployees(EmployeesCharge.lstEmployees);
+
+            return result;
+        }
     }
 }
