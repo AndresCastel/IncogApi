@@ -36,22 +36,37 @@ namespace IncognitusBack.API.Services
             
             if (employ != null)
             {
-               
+                //Get if that employ has 
+                var EmployeeRegisterSpec = new EmployeeRegisterSpecification(employ.Id, true);
+                var employeeregister = (await _employee_RegisterRepository.ListAsync(EmployeeRegisterSpec)).FirstOrDefault();
+
                 //Get Roster by employ
                 var EmployeeRoster = new RosterSpecification(employ.Payroll, DateTime.Now.Date);
                 var employroster = (await _RosterRepository.ListAsync(EmployeeRoster)).FirstOrDefault();
                 if (employroster == null)
                 {
+                    //if is true he is not an admin
                     if (employ.RolId != 1)
                     {
-                        ReturnMessage.Succesfull = false;
-                        ReturnMessage.Message = employ.Name + " " + employ.LastName + " Does not have any shift today";
-                        return ReturnMessage;
+                        if(employeeregister!=null)
+                        {
+                            if(employeeregister.Type_RegisterId == 2 && employeeregister.EndTime != null)
+                            {
+                                ReturnMessage.Succesfull = false;
+                                ReturnMessage.Message = employ.Name + " " + employ.LastName + " Does not have any shift today";
+                                return ReturnMessage;
+                            }
+                            else
+                            {
+                                var EmployeeRosterSignIn = new RosterSpecification(employ.Payroll, employeeregister.Day);
+                                var employrosterSignIn = (await _RosterRepository.ListAsync(EmployeeRosterSignIn)).FirstOrDefault();
+                                employroster = employrosterSignIn;
+                            }
+                        }
+                       
                     }                   
                 }
-                //Get if that employ has 
-                var EmployeeRegisterSpec = new EmployeeRegisterSpecification(employ.Id, true);
-                var employeeregister = (await _employee_RegisterRepository.ListAsync(EmployeeRegisterSpec)).FirstOrDefault();
+                
                 if (employeeregister != null)
                 {
                     employRegister.employregister = CreateViewModelFromEmployeeRegister(employeeregister);
@@ -71,8 +86,13 @@ namespace IncognitusBack.API.Services
                     employRegister.employregister = new EmployeeRegisterViewModel();
                     employRegister.employregister.Employee = CreateViewModelFromEmployee(employ);
                 }
+
+                if(employroster!= null)
+                {
+                    employRegister.employRoster = CreateViewModelFromRoster(employroster);
+                }
                 
-                employRegister.employRoster = CreateViewModelFromRoster(employroster);
+                
                 
                 
                 ReturnMessage.Data = employRegister;
@@ -130,6 +150,7 @@ namespace IncognitusBack.API.Services
                     case 1:
                         UltimateRegister.Type_RegisterId = Register.Type_RegisterId;
                         UltimateRegister.StartTime = Register.StartTime;
+                        UltimateRegister.Day = Register.Day;
                         UltimateRegister.Payroll = Register.Payroll;
                         UltimateRegister.Active = Register.Active;
                         await _employee_RegisterRepository.UpdateAsync(UltimateRegister);
