@@ -1,4 +1,5 @@
 ﻿using IncognitusBack.API.ViewModels;
+using IncognitusBack.Core.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,7 +9,6 @@ namespace IncognitusBack.API.Interfaces
 {
     public interface IEmployeeViewModelService
     {
-        Task<List<TimesheetsReportViewModel>> GetEmployeesSignInOff();
 
         Task<MessageResponseViewModel<EmployeeVsRosterVM>> GetEmployeebyBarcode(string Barcode);
 

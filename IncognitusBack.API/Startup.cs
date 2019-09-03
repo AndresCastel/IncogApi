@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using IncognitusBack.API.Interfaces;
 using IncognitusBack.API.Services;
+using IncognitusBack.Core.Entities;
 using IncognitusBack.Core.Interfaces;
 using IncognitusBack.Core.Services;
 using IncognitusBack.DataAccess.Data;
@@ -32,7 +33,7 @@ namespace IncognitusBack.API
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
             services.AddDbContext<IncogDbContext>(c =>
-             c.UseSqlServer(Configuration.GetConnectionString("IncogServerConnection"), b => b.MigrationsAssembly("IncognitusBack.API")));
+             c.UseSqlServer(Configuration.GetConnectionString("IncogServerConnectionTest"), b => b.MigrationsAssembly("IncognitusBack.API")));
 
             services.AddSwaggerGen(c =>
             {
@@ -41,8 +42,11 @@ namespace IncognitusBack.API
             });
             services.AddScoped(typeof(IRepository<>), typeof(EfRepository<>));
             services.AddScoped(typeof(IAsyncRepository<>), typeof(EfRepository<>));
+            services.AddScoped(typeof(IAsyncRepositoryNormal<>), typeof(EfRepositoryViews<>));
             services.AddScoped<IEmployeeViewModelService, EmployeeViewModelService>();
+            services.AddScoped<IRosterViewModelService, RosterViewModelService>();
             services.AddScoped<IChargesViewModelService, ChargesViewModelService>();
+            services.AddScoped<IReportsViewModelService, ReportsViewModelService>();
             services.AddScoped<IEmployeeService, EmployeeService>();
         }
 

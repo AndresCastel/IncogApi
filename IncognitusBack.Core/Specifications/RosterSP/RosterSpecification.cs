@@ -1,4 +1,5 @@
 ﻿using IncognitusBack.Core.Entities;
+using IncognitusBack.Core.Entities.Roster;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -11,8 +12,16 @@ namespace IncognitusBack.Core.Specifications.RosterSP
             : base(o => o.Payroll == Payroll && o.Date.Date == dateTime.Date )
         {
         }
-       
 
+        public RosterSpecification(string Payroll)
+            : base(o => o.Payroll.Contains(Payroll))
+        {
+        }
+
+        public RosterSpecification(DateTime DateStart, DateTime DateEnd)
+            : base(o => o.Date.Date >= DateStart.Date && o.Date.Date<= DateEnd.Date )
+        {
+        }
 
     }
 }

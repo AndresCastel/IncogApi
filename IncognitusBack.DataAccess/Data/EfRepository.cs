@@ -45,6 +45,32 @@ namespace IncognitusBack.DataAccess.Data
             return await _dbContext.Set<T>().ToListAsync();
         }
 
+
+        //Querys Andres
+        public async Task<List<TimesheetsReport>> ListAllTimeSheetAsync()
+        {
+            return await _dbContext.TimesheetsReport.ToListAsync();
+        }
+
+        public async Task<List<TimesheetsReport>> ListAllTimeSheetAsyncSpec(ISpecification<TimesheetsReport> spec)
+        {
+            // fetch a Queryable that includes all expression-based includes
+            var queryableResultWithIncludes = spec.Includes.Aggregate(_dbContext.Query<TimesheetsReport>().AsQueryable(),(current, include) => current.Include(include));
+
+            // modify the IQueryable to include any string-based include statements
+            var secondaryResult = spec.IncludeStrings
+                .Aggregate(queryableResultWithIncludes,
+                    (current, include) => current.Include(include));
+
+            // return the result of the query using the specification's criteria expression
+            return await secondaryResult
+                            .Where(spec.Criteria)
+                            .ToListAsync();
+        }
+        //
+
+
+
         public IEnumerable<T> List(ISpecification<T> spec)
         {
             // fetch a Queryable that includes all expression-based includes
@@ -117,5 +143,7 @@ namespace IncognitusBack.DataAccess.Data
             _dbContext.Set<T>().Remove(entity);
             await _dbContext.SaveChangesAsync();
         }
+
+       
     }
 }

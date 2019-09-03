@@ -17,9 +17,11 @@ namespace IncognitusBack.API.Services
         private readonly IAsyncRepository<Employee> _employeeRepository;
         private readonly IAsyncRepository<Employee_Register> _employee_RegisterRepository;
         private readonly IAsyncRepository<Stuff_Assign> _stuffAssingRepository;
+        private readonly IAsyncRepositoryNormal<TimesheetsReport> _TimeRepository;
         public EmployeeViewModelService(IAsyncRepository<Employee> employeeRepository, IAsyncRepository<Employee_Register> employee_RegisterRepository,
            IAsyncRepository<Stuff_Assign> StuffAssingRepository, IAsyncRepository<RosterC> RosterRepository)
         {
+           // _TimeRepository = TimeRepository;
             _RosterRepository = RosterRepository;
             _stuffAssingRepository = StuffAssingRepository;
             _employeeRepository = employeeRepository;
@@ -29,7 +31,7 @@ namespace IncognitusBack.API.Services
         public async Task<MessageResponseViewModel<AllStuffVM>> GetStuffAsig()
         {
             MessageResponseViewModel<AllStuffVM> ReturnMessage = new MessageResponseViewModel<AllStuffVM>();
-
+            
             try
             {
                 AllStuffVM AllStuff = new AllStuffVM();
@@ -63,7 +65,7 @@ namespace IncognitusBack.API.Services
         public async Task<MessageResponseViewModel<EmployeeVsRosterVM>> GetEmployeebyBarcode(string Barcode)
         {
             MessageResponseViewModel<EmployeeVsRosterVM> ReturnMessage = new MessageResponseViewModel<EmployeeVsRosterVM>();
-
+            
             EmployeeVsRosterVM employRegister = new EmployeeVsRosterVM();
             //Get Employee
             var EmployeeSpec = new EmployeeSpecification(Barcode);
@@ -97,6 +99,13 @@ namespace IncognitusBack.API.Services
                                 var employrosterSignIn = (await _RosterRepository.ListAsync(EmployeeRosterSignIn)).FirstOrDefault();
                                 employroster = employrosterSignIn;
                             }
+                        }
+                        else
+                        {
+                            ReturnMessage.Succesfull = false;
+                            ReturnMessage.Message = employ.Name + " " + employ.LastName + " Does not have any shift today";
+                            return ReturnMessage;
+
                         }
                        
                     }                   
@@ -355,42 +364,6 @@ namespace IncognitusBack.API.Services
             return viewModel;
         }
 
-        public async Task<List<TimesheetsReportViewModel>> GetEmployeesSignInOff()
-        {
-            List<TimesheetsReportViewModel> lst = new List<TimesheetsReportViewModel>();
-            
-
-            EmployeeRegisterViewModel employRegister = new EmployeeRegisterViewModel();
-            //Get Employee
-            var EmployeeRegisterSpec = new EmployeeRegisterSpecification(false);
-            List<Employee_Register> lstemployReg = (await _employee_RegisterRepository.ListAsync(EmployeeRegisterSpec));
-
-            //Get Employee
-            List<Employee> lstemploy = (await _employeeRepository.ListAllAsync());
-
-            foreach (Employee_Register item in lstemployReg)
-            {
-                TimesheetsReport time = new TimesheetsReport();
-                foreach (Employee emp in lstemploy)
-                {
-                    if(item.EmployeeId == emp.Id)
-                    {
-                        time.Break = item.Break;
-                        time.LastName = emp.LastName;
-                        time.Name = emp.Name;
-                        time.Payroll = emp.Payroll;
-                        time.StartTime = item.StartTime;
-                        time.EndTime = item.EndTime;
-                        time.Day = item.Day;
-                        lst.Add(CreateViewModelFromTimesheets(time));
-                    }
-                    
-                }
-            }
-
-            return lst;
-        }
-
         private TimesheetsReportViewModel CreateViewModelFromTimesheets(TimesheetsReport Timesh)
         {
             var viewModel = new TimesheetsReportViewModel();
@@ -403,5 +376,10 @@ namespace IncognitusBack.API.Services
             viewModel.Day = Timesh.Day;
             return viewModel;
         }
+
+        //public Task<TimesheetsReport> GetTimesheetsAsync()
+        //{
+        //    return _TimeRepository.GetTimesheetsAsync();
+        //}
     }
 }

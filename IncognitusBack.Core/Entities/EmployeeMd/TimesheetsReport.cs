@@ -4,7 +4,7 @@ using System.Text;
 
 namespace IncognitusBack.Core.Entities
 {
-    public class TimesheetsReport: BaseNotKey
+    public class TimesheetsReport : BaseNotKey
     {
         public string Payroll { get; set; }
         public string Name { get; set; }
@@ -13,5 +13,6 @@ namespace IncognitusBack.Core.Entities
         public string StartTime { get; set; }
         public string EndTime { get; set; }
         public int Break { get; set; }
+        public bool Active { get; set; }
     }
 }
