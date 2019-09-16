@@ -21,10 +21,10 @@ namespace IncognitusBack.API.Controllers
             this._ReportsService = EReportsService;
         }
 
-        [HttpGet("timesheet")]
-        public async Task<List<TimesheetsReportViewModel>> GetEmployeesSignInOff()
+        [HttpPost("timesheet")]
+        public async Task<List<TimesheetsReportViewModel>> GetEmployeesSignInOff(FilterParametersRoster filter)
         {
-            var result = await _ReportsService.GetEmployeesSignInOff();
+            var result = await _ReportsService.GetEmployeesSignInOff(filter);
 
             return result;
         }

@@ -17,7 +17,6 @@ namespace IncognitusBack.Core.Entities
         [Required]
         public string Payroll { get; set; }
         public string Barcode { get; set; }
-        [Required]
         public string Email { get; set; }
         [Required]
         public int RolId { get; set; }

@@ -53,7 +53,7 @@ namespace IncognitusBack.API.Services
             catch (Exception ex)
             {
                 Message.Succesfull = false;
-                Message.Message = ex.Message;
+                Message.Message = ex.Message + ex.InnerException;
                 return Message;
             }
         }

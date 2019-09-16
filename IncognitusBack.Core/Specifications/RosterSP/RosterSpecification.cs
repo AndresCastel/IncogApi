@@ -14,7 +14,7 @@ namespace IncognitusBack.Core.Specifications.RosterSP
         }
 
         public RosterSpecification(string Payroll)
-            : base(o => o.Payroll.Contains(Payroll))
+            : base(o => o.Payroll == Payroll)
         {
         }
 

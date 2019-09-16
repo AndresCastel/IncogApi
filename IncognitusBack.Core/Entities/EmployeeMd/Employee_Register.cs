@@ -21,5 +21,8 @@ namespace IncognitusBack.Core.Entities
         public int Break { get; set; }
         [DefaultValue("Insert 1 Here")]
         public bool Active { get; set; }
+        public int RosterId { get; set; }
+        [ForeignKey("RosterId")]
+        public RosterC Roster { get; set; }
     }
 }

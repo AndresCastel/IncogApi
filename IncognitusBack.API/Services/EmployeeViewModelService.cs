@@ -62,91 +62,101 @@ namespace IncognitusBack.API.Services
             return ReturnMessage;
         }
 
-        public async Task<MessageResponseViewModel<EmployeeVsRosterVM>> GetEmployeebyBarcode(string Barcode)
+        public async Task<MessageResponseViewModel<EmployeeVsRosterVM>> GetEmployeebyBarcode(EmployeeRegisterViewModel employee)
         {
             MessageResponseViewModel<EmployeeVsRosterVM> ReturnMessage = new MessageResponseViewModel<EmployeeVsRosterVM>();
-            
-            EmployeeVsRosterVM employRegister = new EmployeeVsRosterVM();
-            //Get Employee
-            var EmployeeSpec = new EmployeeSpecification(Barcode);
-            var employ = (await _employeeRepository.ListAsync(EmployeeSpec)).FirstOrDefault();
-            
-            if (employ != null)
+            try
             {
-                //Get if that employ has 
-                var EmployeeRegisterSpec = new EmployeeRegisterSpecification(employ.Id, true);
-                var employeeregister = (await _employee_RegisterRepository.ListAsync(EmployeeRegisterSpec)).FirstOrDefault();
+               
 
-                //Get Roster by employ
-                var EmployeeRoster = new RosterSpecification(employ.Payroll, DateTime.Now.Date);
-                var employroster = (await _RosterRepository.ListAsync(EmployeeRoster)).FirstOrDefault();
-                if (employroster == null)
+                EmployeeVsRosterVM employRegister = new EmployeeVsRosterVM();
+                //Get Employee
+                var EmployeeSpec = new EmployeeSpecification(employee.Employee.Barcode);
+                var employ = (await _employeeRepository.ListAsync(EmployeeSpec)).FirstOrDefault();
+
+                if (employ != null)
                 {
-                    //if is true he is not an admin
-                    if (employ.RolId != 1)
+                    //Get if that employ has 
+                    var EmployeeRegisterSpec = new EmployeeRegisterSpecification(employ.Id, true);
+                    var employeeregister = (await _employee_RegisterRepository.ListAsync(EmployeeRegisterSpec)).FirstOrDefault();
+
+                    //Get Roster by employ
+                    var EmployeeRoster = new RosterSpecification(employ.Payroll, employee.Day);
+                    var employroster = (await _RosterRepository.ListAsync(EmployeeRoster)).FirstOrDefault();
+                    if (employroster == null)
                     {
-                        if(employeeregister!=null)
+                        //if is true he is not an admin
+                        if (employ.RolId != 1)
                         {
-                            if(employeeregister.Type_RegisterId == 2 && employeeregister.EndTime == null)
+                            if (employeeregister != null)
+                            {
+                                if (employeeregister.Type_RegisterId == 2 && employeeregister.EndTime == null)
+                                {
+                                    ReturnMessage.Succesfull = false;
+                                    ReturnMessage.Message = employ.Name + " " + employ.LastName + " Does not have any shift today";
+                                    return ReturnMessage;
+                                }
+                                else
+                                {
+                                    var EmployeeRosterSignIn = new RosterSpecification(employ.Payroll, employeeregister.Day);
+                                    var employrosterSignIn = (await _RosterRepository.ListAsync(EmployeeRosterSignIn)).FirstOrDefault();
+                                    employroster = employrosterSignIn;
+                                }
+                            }
+                            else
                             {
                                 ReturnMessage.Succesfull = false;
                                 ReturnMessage.Message = employ.Name + " " + employ.LastName + " Does not have any shift today";
                                 return ReturnMessage;
+
                             }
-                            else
-                            {
-                                var EmployeeRosterSignIn = new RosterSpecification(employ.Payroll, employeeregister.Day);
-                                var employrosterSignIn = (await _RosterRepository.ListAsync(EmployeeRosterSignIn)).FirstOrDefault();
-                                employroster = employrosterSignIn;
-                            }
-                        }
-                        else
-                        {
-                            ReturnMessage.Succesfull = false;
-                            ReturnMessage.Message = employ.Name + " " + employ.LastName + " Does not have any shift today";
-                            return ReturnMessage;
 
                         }
-                       
-                    }                   
-                }
-                
-                if (employeeregister != null)
-                {
-                    employRegister.employregister = CreateViewModelFromEmployeeRegister(employeeregister);
-                    var StuffAsign = new StuffAssignSpecification(employeeregister.Id);
-                    var stuffassing = (await _stuffAssingRepository.ListAsync(StuffAsign));
-                    List<StuffAssignViewModel> lst = new List<StuffAssignViewModel>();
-
-                    foreach (var item in stuffassing)
-                    {
-                        lst.Add(CreateViewModelFromStuff(item));
                     }
-                    employRegister.employregister.lstStuffAssig = lst;
-                    employRegister.employregister.Employee = CreateViewModelFromEmployee(employ);
+
+                    if (employeeregister != null)
+                    {
+                        employRegister.employregister = CreateViewModelFromEmployeeRegister(employeeregister);
+                        var StuffAsign = new StuffAssignSpecification(employeeregister.Id);
+                        var stuffassing = (await _stuffAssingRepository.ListAsync(StuffAsign));
+                        List<StuffAssignViewModel> lst = new List<StuffAssignViewModel>();
+
+                        foreach (var item in stuffassing)
+                        {
+                            lst.Add(CreateViewModelFromStuff(item));
+                        }
+                        employRegister.employregister.lstStuffAssig = lst;
+                        employRegister.employregister.Employee = CreateViewModelFromEmployee(employ);
+                    }
+                    else
+                    {
+                        employRegister.employregister = new EmployeeRegisterViewModel();
+                        employRegister.employregister.Employee = CreateViewModelFromEmployee(employ);
+                    }
+
+                    if (employroster != null)
+                    {
+                        employRegister.employRoster = CreateViewModelFromRoster(employroster);
+                    }
+
+
+
+
+                    ReturnMessage.Data = employRegister;
+                    ReturnMessage.Succesfull = true;
+
                 }
                 else
                 {
-                    employRegister.employregister = new EmployeeRegisterViewModel();
-                    employRegister.employregister.Employee = CreateViewModelFromEmployee(employ);
-                }
-
-                if(employroster!= null)
-                {
-                    employRegister.employRoster = CreateViewModelFromRoster(employroster);
-                }
-                
-                
-                
-                
-                ReturnMessage.Data = employRegister;
-                ReturnMessage.Succesfull = true;
-
-            }
-            else
-            {
                     ReturnMessage.Succesfull = false;
                     ReturnMessage.Message = "This User does not exist in the DataBase";
+                }
+            }
+            catch (Exception ex)
+            {
+                 ReturnMessage.Succesfull=false;
+                ReturnMessage.Message = ex.Message + ex.InnerException;
+                return ReturnMessage;
             }
             
             return ReturnMessage;
@@ -155,137 +165,151 @@ namespace IncognitusBack.API.Services
         public async Task<MessageResponseViewModel<EmployeeRegisterViewModel>> RegisterEmployee(EmployeeRegisterViewModel Register)
         {
             MessageResponseViewModel<EmployeeRegisterViewModel> resultMessage = new MessageResponseViewModel<EmployeeRegisterViewModel>();
-            //Validate if there is a register previously
-            var Registerespe = new EmployeeRegisterSpecification(Register.EmployeeId, true);
-            var UltimateRegister = (await _employee_RegisterRepository.ListAsync(Registerespe)).FirstOrDefault();
-           
-
-            if (UltimateRegister == null)
+            try
             {
-                Employee_Register employee = new Employee_Register()
-                {
-                    EmployeeId = Register.EmployeeId,
-                    Active = Register.Active,
-                    Day = Register.Day,
-                    Payroll = Register.Payroll,
-                    Type_RegisterId = Register.Type_RegisterId,
-                    StartTime = Register.StartTime
-                };
-                employee = await _employee_RegisterRepository.AddAsync(employee);
+                
+                //Validate if there is a register previously
+                var Registerespe = new EmployeeRegisterSpecification(Register.EmployeeId, true);
+                var UltimateRegister = (await _employee_RegisterRepository.ListAsync(Registerespe)).FirstOrDefault();
 
-                foreach (var item in Register.lstStuffAssig)
+
+                if (UltimateRegister == null)
                 {
-                    Stuff_Assign stuffassing = new Stuff_Assign()
+                    Employee_Register employee = new Employee_Register()
                     {
-                        Active = item.Active,
-                        Employee_RegisterId = employee.Id
-                    ,
-                        StuffId = item.StuffId,
-                        Quantity = item.Quantity
+                        EmployeeId = Register.EmployeeId,
+                        Active = Register.Active,
+                        Day = Register.Day,
+                        Payroll = Register.Payroll,
+                        Type_RegisterId = Register.Type_RegisterId,
+                        StartTime = Register.StartTime,
+                        RosterId = Register.RosterId
                     };
-                    await _stuffAssingRepository.AddAsync(stuffassing);
-                }
-            }
-            else
-            {
-                switch (Register.Type_RegisterId)
-                {
-                    //SignIn
-                    case 1:
-                        UltimateRegister.Type_RegisterId = Register.Type_RegisterId;
-                        UltimateRegister.StartTime = Register.StartTime;
-                        UltimateRegister.Day = Register.Day;
-                        UltimateRegister.Payroll = Register.Payroll;
-                        UltimateRegister.Active = Register.Active;
-                        await _employee_RegisterRepository.UpdateAsync(UltimateRegister);
-                        var StuffAsign = new StuffAssignSpecification(UltimateRegister.Id);
-                        var stuffassing = (await _stuffAssingRepository.ListAsync(StuffAsign));
-                        foreach (var item in stuffassing)
+                    employee = await _employee_RegisterRepository.AddAsync(employee);
+
+                    foreach (var item in Register.lstStuffAssig)
+                    {
+                        Stuff_Assign stuffassing = new Stuff_Assign()
                         {
-                            await _stuffAssingRepository.DeleteAsync(item);
-                        }
-                        foreach (var item in Register.lstStuffAssig)
-                        {
-                            Stuff_Assign stuffassg = new Stuff_Assign()
-                            {
-                                Active = item.Active,
-                                Employee_RegisterId = UltimateRegister.Id
-                            ,
-                                StuffId = item.StuffId,
-                                Quantity = item.Quantity
-                            };
-                            await _stuffAssingRepository.AddAsync(stuffassg);
-                        }
-                        break;
-                    //signOff
-                    case 2: 
-                        //Update Last register
-                        UltimateRegister.Type_RegisterId = Register.Type_RegisterId;
-                        UltimateRegister.Break = Register.Break;
-                        UltimateRegister.Payroll = Register.Payroll;
-                        UltimateRegister.EndTime = Register.EndTime;
-                        UltimateRegister.Active = false;
-                        await _employee_RegisterRepository.UpdateAsync(UltimateRegister);
-                        //Create a new Register
-                        Employee_Register employee = new Employee_Register()
-                        {
-                            EmployeeId = Register.EmployeeId,
-                            Active = true,
-                            Day = Register.Day,
-                            Payroll = Register.Payroll,
-                            Type_RegisterId = Register.Type_RegisterId
+                            Active = item.Active,
+                            Employee_RegisterId = employee.Id
+                        ,
+                            StuffId = item.StuffId,
+                            Quantity = item.Quantity
                         };
-                        employee = await _employee_RegisterRepository.AddAsync(employee);
-                        var StuffAsignOff = new StuffAssignSpecification(UltimateRegister.Id);
-                        var stuffassingoff = (await _stuffAssingRepository.ListAsync(StuffAsignOff));
-                        foreach (var item in stuffassingoff)
-                        {
-                            await _stuffAssingRepository.DeleteAsync(item);
-                        }
-                        foreach (var item in Register.lstStuffAssig)
-                        {
-                            Stuff_Assign stuffassg = new Stuff_Assign()
+                        await _stuffAssingRepository.AddAsync(stuffassing);
+                    }
+                }
+                else
+                {
+                    switch (Register.Type_RegisterId)
+                    {
+                        //SignIn
+                        case 1:
+                            UltimateRegister.Type_RegisterId = Register.Type_RegisterId;
+                            UltimateRegister.StartTime = Register.StartTime;
+                            UltimateRegister.Day = Register.Day;
+                            UltimateRegister.Payroll = Register.Payroll;
+                            UltimateRegister.Active = Register.Active;
+                            UltimateRegister.RosterId = Register.RosterId;
+                            await _employee_RegisterRepository.UpdateAsync(UltimateRegister);
+                            var StuffAsign = new StuffAssignSpecification(UltimateRegister.Id);
+                            var stuffassing = (await _stuffAssingRepository.ListAsync(StuffAsign));
+                            foreach (var item in stuffassing)
                             {
-                                Active = item.Active,
-                                Employee_RegisterId = employee.Id
-                            ,
-                                StuffId = item.StuffId,
-                                Quantity = item.Quantity
-                            };
-                            await _stuffAssingRepository.AddAsync(stuffassg);
-                        }
-                        break;
+                                await _stuffAssingRepository.DeleteAsync(item);
+                            }
+                            foreach (var item in Register.lstStuffAssig)
+                            {
+                                Stuff_Assign stuffassg = new Stuff_Assign()
+                                {
+                                    Active = item.Active,
+                                    Employee_RegisterId = UltimateRegister.Id
+                                ,
+                                    StuffId = item.StuffId,
+                                    Quantity = item.Quantity
+                                };
+                                await _stuffAssingRepository.AddAsync(stuffassg);
+                            }
+                            break;
+                        //signOff
+                        case 2:
+                            //Update Last register
+                            UltimateRegister.Type_RegisterId = Register.Type_RegisterId;
+                            UltimateRegister.Break = Register.Break;
+                            UltimateRegister.Payroll = Register.Payroll;
+                            UltimateRegister.EndTime = Register.EndTime;
+                           // UltimateRegister.RosterId = Register.RosterId;
+                            UltimateRegister.Active = false;
+                            await _employee_RegisterRepository.UpdateAsync(UltimateRegister);
+                            //Create a new Register
+                            Employee_Register employee = new Employee_Register()
+                            {
+                                EmployeeId = Register.EmployeeId,
+                                Active = true,
+                                Day = Register.Day,
+                                Payroll = Register.Payroll,
+                                Type_RegisterId = Register.Type_RegisterId,
+                                RosterId = Register.RosterId
+                    };
+                            employee = await _employee_RegisterRepository.AddAsync(employee);
+                            var StuffAsignOff = new StuffAssignSpecification(UltimateRegister.Id);
+                            var stuffassingoff = (await _stuffAssingRepository.ListAsync(StuffAsignOff));
+                            foreach (var item in stuffassingoff)
+                            {
+                                await _stuffAssingRepository.DeleteAsync(item);
+                            }
+                            foreach (var item in Register.lstStuffAssig)
+                            {
+                                Stuff_Assign stuffassg = new Stuff_Assign()
+                                {
+                                    Active = item.Active,
+                                    Employee_RegisterId = employee.Id
+                                ,
+                                    StuffId = item.StuffId,
+                                    Quantity = item.Quantity
+                                };
+                                await _stuffAssingRepository.AddAsync(stuffassg);
+                            }
+                            break;
 
-                    //Equipment
-                    case 3:                        
-                        var StuffAsignEquip = new StuffAssignSpecification(UltimateRegister.Id);
-                        var stuffassingEquip = (await _stuffAssingRepository.ListAsync(StuffAsignEquip));
-                        foreach (var item in stuffassingEquip)
-                        {
-                            await _stuffAssingRepository.DeleteAsync(item);
-                        }
-                        foreach (var item in Register.lstStuffAssig)
-                        {
-                            Stuff_Assign stuffassg = new Stuff_Assign()
+                        //Equipment
+                        case 3:
+                            var StuffAsignEquip = new StuffAssignSpecification(UltimateRegister.Id);
+                            var stuffassingEquip = (await _stuffAssingRepository.ListAsync(StuffAsignEquip));
+                            foreach (var item in stuffassingEquip)
                             {
-                                Active = item.Active,
-                                Employee_RegisterId = UltimateRegister.Id
-                            ,
-                                StuffId = item.StuffId,
-                                Quantity = item.Quantity
-                            };
-                            await _stuffAssingRepository.AddAsync(stuffassg);
-                        }
-                        break;
-                    default:
-                        break;
+                                await _stuffAssingRepository.DeleteAsync(item);
+                            }
+                            foreach (var item in Register.lstStuffAssig)
+                            {
+                                Stuff_Assign stuffassg = new Stuff_Assign()
+                                {
+                                    Active = item.Active,
+                                    Employee_RegisterId = UltimateRegister.Id
+                                ,
+                                    StuffId = item.StuffId,
+                                    Quantity = item.Quantity
+                                };
+                                await _stuffAssingRepository.AddAsync(stuffassg);
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+
                 }
 
+
+                resultMessage.Succesfull = true;
+                return resultMessage;
             }
-
-
-            resultMessage.Succesfull = true;
-            return resultMessage;
+            catch (Exception ex)
+            {
+                resultMessage.Succesfull = false;
+                resultMessage.Message = ex.Message + ex.InnerException;
+                return resultMessage;
+            }
 
 
         }
@@ -337,6 +361,7 @@ namespace IncognitusBack.API.Services
             viewModel.Day = employeereg.Day;
             viewModel.Type_RegisterId = employeereg.Type_RegisterId;
             viewModel.Active = employeereg.Active;
+            viewModel.RosterId = employeereg.RosterId;
             return viewModel;
         }
 
@@ -350,6 +375,7 @@ namespace IncognitusBack.API.Services
             viewModel.Payroll = employeereg.Payroll;
             viewModel.Type_RegisterId = employeereg.Type_RegisterId;
             viewModel.Active = employeereg.Active;
+            viewModel.RosterId = employeereg.RosterId;
             return viewModel;
         }
 
@@ -367,13 +393,21 @@ namespace IncognitusBack.API.Services
         private TimesheetsReportViewModel CreateViewModelFromTimesheets(TimesheetsReport Timesh)
         {
             var viewModel = new TimesheetsReportViewModel();
-            viewModel.Name = Timesh.Name;
-            viewModel.LastName = Timesh.LastName;
+            viewModel.Area = Timesh.Area;
+            viewModel.Employee = Timesh.Employee;
+           // viewModel.LastName = Timesh.LastName;
             viewModel.Break = Timesh.Break;
             viewModel.Payroll = Timesh.Payroll;
             viewModel.StartTime = Timesh.StartTime;
             viewModel.EndTime = Timesh.EndTime;
             viewModel.Day = Timesh.Day;
+            viewModel.LabourType = Timesh.LabourType;
+            viewModel.Precint = Timesh.Precint;
+            viewModel.Zone = Timesh.Zone;
+            viewModel.Id = Timesh.Id;
+            viewModel.LookedIn = Timesh.LookedIn;
+            viewModel.EventName = Timesh.EventName;
+            viewModel.Confirm = Timesh.Confirm;
             return viewModel;
         }
 

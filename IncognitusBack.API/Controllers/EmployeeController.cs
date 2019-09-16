@@ -22,11 +22,11 @@ namespace IncognitusBack.API.Controllers
             this._EmployeeService = EmployeeService;
         }
 
-        [HttpGet("get/{barcode}")]
-        public async Task<MessageResponseViewModel<EmployeeVsRosterVM>> GetEmployee(string barcode)
+        [HttpPost("get")]
+        public async Task<MessageResponseViewModel<EmployeeVsRosterVM>> GetEmployee(EmployeeRegisterViewModel employee)
         {
 
-            var result = await _EmployeeService.GetEmployeebyBarcode(barcode);
+            var result = await _EmployeeService.GetEmployeebyBarcode(employee);
 
             return result;
         }

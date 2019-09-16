@@ -15,12 +15,13 @@ namespace IncognitusBack.DataAccess.Data
         public DbSet<Type_Register> Type_Register { get; set; }
         public DbSet<Rol> Rol { get; set; }
         public DbSet<Employee> Employee { get; set; }
+        public DbSet<RosterC> RosterC { get; set; }
         public DbSet<StuffType> StuffType { get; set; }
         public DbSet<Stuff> Stuff { get; set; }
         public DbSet<Stuff_Assign> Stuff_Assign { get; set; }
         public DbSet<Employee_Register> Employee_Register { get; set; }
         public DbQuery<TimesheetsReport> TimesheetsReport { get; set; }
-        public DbSet<RosterC> RosterC { get; set; }
+       
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

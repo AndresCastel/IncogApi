@@ -33,7 +33,7 @@ namespace IncognitusBack.API
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
             services.AddDbContext<IncogDbContext>(c =>
-             c.UseSqlServer(Configuration.GetConnectionString("IncogServerConnectionTest"), b => b.MigrationsAssembly("IncognitusBack.API")));
+             c.UseSqlServer(Configuration.GetConnectionString("IncogServerConnection"), b => b.MigrationsAssembly("IncognitusBack.API")));
 
             services.AddSwaggerGen(c =>
             {

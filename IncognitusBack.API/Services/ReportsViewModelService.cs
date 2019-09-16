@@ -22,17 +22,31 @@ namespace IncognitusBack.API.Services
 
   
 
-        public async Task<List<TimesheetsReportViewModel>> GetEmployeesSignInOff()
+        public async Task<List<TimesheetsReportViewModel>> GetEmployeesSignInOff(FilterParametersRoster filter)
         {
-            List<TimesheetsReportViewModel> lst = new List<TimesheetsReportViewModel>();
+            List<TimesheetsReport> lst = new List<TimesheetsReport>();
+            List<TimesheetsReportViewModel> lsttime = new List<TimesheetsReportViewModel>();
             try
             {
-                var timeSheetSpecification = new TimeSheetSpecification(false);
-                var Time = await _TimeRepository.ListAllTimeSheetAsyncSpec(timeSheetSpecification);
-
-                foreach (var item in Time)
+                switch (filter.filter)
                 {
-                    lst.Add(CreateViewModelFromTimesheets(item));
+                    case "All":
+                        TimeSheetSpecification timeSheetSpecificationall = new TimeSheetSpecification();
+                        lst = await _TimeRepository.ListAllTimeSheetAsyncSpec(timeSheetSpecificationall);
+                        break;
+                    case "Employee":
+                        var RosterSpDate = new TimeSheetSpecification(false, filter.Employee);
+                        lst = await _TimeRepository.ListAllTimeSheetAsyncSpec(RosterSpDate);
+                        break;
+                    default:
+                        TimeSheetSpecification timeSheetSpecificationdef = new TimeSheetSpecification();
+                        lst = await _TimeRepository.ListAllTimeSheetAsyncSpec(timeSheetSpecificationdef);
+                        break;
+                }
+
+                foreach (var item in lst)
+                {
+                    lsttime.Add(CreateViewModelFromTimesheets(item));
                 }
             }
             catch (Exception ex)
@@ -41,19 +55,27 @@ namespace IncognitusBack.API.Services
                 throw;
             }
             
-            return lst;
+            return lsttime;
         }
 
         private TimesheetsReportViewModel CreateViewModelFromTimesheets(TimesheetsReport Timesh)
         {
             var viewModel = new TimesheetsReportViewModel();
-            viewModel.Name = Timesh.Name;
-            viewModel.LastName = Timesh.LastName;
+            viewModel.Area = Timesh.Area;
+            viewModel.Employee = Timesh.Employee;
+            // viewModel.LastName = Timesh.LastName;
             viewModel.Break = Timesh.Break;
             viewModel.Payroll = Timesh.Payroll;
             viewModel.StartTime = Timesh.StartTime;
             viewModel.EndTime = Timesh.EndTime;
             viewModel.Day = Timesh.Day;
+            viewModel.LabourType = Timesh.LabourType;
+            viewModel.Precint = Timesh.Precint;
+            viewModel.Zone = Timesh.Zone;
+            viewModel.Id = Timesh.Id;
+            viewModel.LookedIn = Timesh.LookedIn;
+            viewModel.EventName = Timesh.EventName;
+            viewModel.Confirm = Timesh.Confirm;
             return viewModel;
         }
 

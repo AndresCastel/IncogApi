@@ -10,7 +10,7 @@ namespace IncognitusBack.API.Interfaces
     public interface IEmployeeViewModelService
     {
 
-        Task<MessageResponseViewModel<EmployeeVsRosterVM>> GetEmployeebyBarcode(string Barcode);
+        Task<MessageResponseViewModel<EmployeeVsRosterVM>> GetEmployeebyBarcode(EmployeeRegisterViewModel employee);
 
         Task<MessageResponseViewModel<EmployeeRegisterViewModel>> RegisterEmployee(EmployeeRegisterViewModel Register);
 

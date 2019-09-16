@@ -12,7 +12,7 @@ namespace IncognitusBack.Core.Specifications.EmployeeSP
         //{
         //}
         public TimeSheetReportSpecification(string Name)
-            : base(o => o.Name == Name)
+            : base(o => o.Employee == Name)
         {
         }
 
