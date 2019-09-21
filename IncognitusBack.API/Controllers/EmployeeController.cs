@@ -31,6 +31,16 @@ namespace IncognitusBack.API.Controllers
             return result;
         }
 
+
+        [HttpGet("getall")]
+        public async Task<MessageResponseViewModel<List<EmployeeViewModel>>> GetAllEmployee()
+        {
+
+            var result = await _EmployeeService.GetAllEmployees();
+
+            return result;
+        }
+
         [HttpGet("Stuff")]
         public async Task<MessageResponseViewModel<AllStuffVM>> GetStuffAsig()
         {

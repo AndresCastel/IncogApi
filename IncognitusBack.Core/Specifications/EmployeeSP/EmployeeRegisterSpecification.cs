@@ -7,8 +7,8 @@ namespace IncognitusBack.Core.Specifications
 {
     public class EmployeeRegisterSpecification : BaseSpecification<Employee_Register>
     {
-        public EmployeeRegisterSpecification(int EmployeerId)
-            : base(o => o.EmployeeId == EmployeerId)
+        public EmployeeRegisterSpecification(int Id)
+            : base(o => o.Id == Id)
         {
         }
         public EmployeeRegisterSpecification(int EmployeerId, bool Active)

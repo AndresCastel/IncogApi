@@ -9,6 +9,8 @@ namespace IncognitusBack.API.Interfaces
 {
     public interface IReportsViewModelService
     {
-        Task<List<TimesheetsReportViewModel>> GetEmployeesSignInOff(FilterParametersRoster filter);
+        Task<List<TimesheetsReportViewModel>> GetEmployeesSignInOff(FilterParametersTimesheet filter);
+        Task<MessageResponseViewModel<bool>> EditEmployeesSignInOff(TimesheetsReportViewModel timesheet);
+        Task<MessageResponseViewModel<bool>> DeleteEmployeesSignInOff(TimesheetsReportViewModel timesheet);
     }
 }
