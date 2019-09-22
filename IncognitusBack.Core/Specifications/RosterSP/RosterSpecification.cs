@@ -13,13 +13,19 @@ namespace IncognitusBack.Core.Specifications.RosterSP
         {
         }
 
-        public RosterSpecification(string Payroll)
-            : base(o => o.Payroll == Payroll)
+        public RosterSpecification(DateTime Date)
+           : base(o => o.Date == Date)
+        {
+
+        }
+
+        public RosterSpecification(bool Timesheet, string employee, DateTime Date)
+            : base(o => o.Employee == employee && o.Date == Date)
         {
         }
 
-        public RosterSpecification(DateTime DateStart, DateTime DateEnd)
-            : base(o => o.Date.Date >= DateStart.Date && o.Date.Date<= DateEnd.Date )
+        public RosterSpecification(DateTime DateFrom, DateTime DateTo)
+            : base(o => o.Date >= DateFrom && o.Date <= DateTo)
         {
         }
 

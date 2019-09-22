@@ -199,6 +199,36 @@ namespace IncognitusBack.API.Services
             return ReturnMessage;
         }
 
+        public async Task<MessageResponseViewModel<EmployeeViewModel>> GetEmployee(string Barcode)
+        {
+            MessageResponseViewModel<EmployeeViewModel> ReturnMessage = new MessageResponseViewModel<EmployeeViewModel>();
+            try
+            {
+
+                var EmployeeSpec = new EmployeeSpecification(Barcode);
+                var employ = (await _employeeRepository.ListAsync(EmployeeSpec)).FirstOrDefault();
+
+                if (employ != null)
+                {
+                    ReturnMessage.Data = CreateViewModelFromEmployee(employ);
+                    ReturnMessage.Succesfull = true;
+                }
+                else
+                {
+                    ReturnMessage.Succesfull = false;
+                    ReturnMessage.Message = "This employee does not exist in the Database";
+                    return ReturnMessage;
+                }
+            }
+            catch (Exception ex)
+            {
+                ReturnMessage.Succesfull = false;
+                ReturnMessage.Message = ex.Message + ex.InnerException;
+                return ReturnMessage;
+            }
+            return ReturnMessage;
+        }
+
         public async Task<MessageResponseViewModel<EmployeeRegisterViewModel>> RegisterEmployee(EmployeeRegisterViewModel Register)
         {
             MessageResponseViewModel<EmployeeRegisterViewModel> resultMessage = new MessageResponseViewModel<EmployeeRegisterViewModel>();

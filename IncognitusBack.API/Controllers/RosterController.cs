@@ -31,5 +31,15 @@ namespace IncognitusBack.API.Controllers
             return roster;
         }
 
+        [HttpPost("set")]
+        public async Task<MessageResponseViewModel<bool>> SetRoster(RosterCViewModel roster)
+        {
+            MessageResponseViewModel<bool> rosterres = new MessageResponseViewModel<bool>();
+            var result = await _RosterService.SetRoster(roster);
+           
+            rosterres = result;
+            return rosterres;
+        }
+
     }
 }

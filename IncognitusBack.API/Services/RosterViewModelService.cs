@@ -26,18 +26,22 @@ namespace IncognitusBack.API.Services
             switch (filter.filter)
             {
                 case "All":
-                    lstroster = await _RosterRepository.ListAllAsync();
+                    RosterSpecification timeSheetSpecificationall = new RosterSpecification(filter.DateGridFilter);
+                    lstroster = await _RosterRepository.ListAsync(timeSheetSpecificationall);
                     break;
-                case "Payroll":
-                    var RosterSpPayroll = new RosterSpecification(filter.Payroll);
-                    lstroster = await _RosterRepository.ListAsync(RosterSpPayroll);
+                case "Employee":
+                    var RosterSpemployee = new RosterSpecification(filter.Employee, filter.DateGridFilter);
+                    lstroster = await _RosterRepository.ListAsync(RosterSpemployee);
                     break;
-                case "Date":
-                    var RosterSpDate = new RosterSpecification(filter.DateStart, filter.DateEnd);
-                    lstroster = await _RosterRepository.ListAsync(RosterSpDate);
+                case "Export":
+                    var Datefrom = Convert.ToDateTime(filter.DateFrom.ToShortDateString()); //this sets time to 00:00:00
+                    var Dateto = Convert.ToDateTime(filter.DateTo.ToShortDateString());
+                    var RosterSpExpor = new RosterSpecification(Datefrom, Dateto);
+                    lstroster = await _RosterRepository.ListAsync(RosterSpExpor);
                     break;
                 default:
-                    lstroster = await _RosterRepository.ListAllAsync();
+                    RosterSpecification timeSheetSpecificationdef = new RosterSpecification(filter.DateGridFilter);
+                    lstroster = await _RosterRepository.ListAsync(timeSheetSpecificationdef);
                     break;
             }
 
@@ -75,16 +79,46 @@ namespace IncognitusBack.API.Services
             return viewModel;
         }
 
-        private FilterParametersRosterEntity CreateParameters(FilterParametersRoster Roster)
+        private RosterC CreateRosterFromViewModel(RosterCViewModel Roster)
         {
-            var viewModel = new FilterParametersRosterEntity();
-            viewModel.DateEnd = Roster.DateEnd;
-            viewModel.DateStart = Roster.DateStart;
+            var viewModel = new RosterC();
+            viewModel.Id = Roster.Id;
+            viewModel.Area = Roster.Area;
+            viewModel.Break = Roster.Break;
+            viewModel.Confirm = Roster.Confirm;
+            viewModel.Date = Roster.Date;
             viewModel.Day = Roster.Day;
-            viewModel.Employee = Roster.Employee;
             viewModel.Payroll = Roster.Payroll;
             viewModel.Employee = Roster.Employee;
+            viewModel.EndTime = Roster.EndTime;
+            viewModel.EventName = Roster.EventName;
+            viewModel.LabourType = Roster.LabourType;
+            viewModel.LookedIn = Roster.LookedIn;
+            viewModel.Precint = Roster.Precint;
+            viewModel.ShiftNum = Roster.ShiftNum;
+            viewModel.StartTime = Roster.StartTime;
+            viewModel.Zone = Roster.Zone;
             return viewModel;
+        }
+
+        public async Task<MessageResponseViewModel<bool>> SetRoster(RosterCViewModel roster)
+        {
+            MessageResponseViewModel<bool> res = new MessageResponseViewModel<bool>();
+
+            try
+            {
+                RosterC ros = CreateRosterFromViewModel(roster);
+                await _RosterRepository.AddAsync(ros);
+                 res.Succesfull = true;
+                return res;
+            }
+            catch (Exception ex)
+            {
+                res.Message = ex.Message + ex.InnerException;
+                res.Succesfull = false;
+                return res;
+            }
+
         }
 
     }
