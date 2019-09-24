@@ -72,8 +72,6 @@ namespace IncognitusBack.API.Services
             EmployeeRegisterSpecification timeSheetSpecificationall = new EmployeeRegisterSpecification(timesheet.Id);
             var tm = (await _employeeRegisterRepository.ListAsync(timeSheetSpecificationall)).FirstOrDefault();
 
-            
-           
             try
             {
                 if (tm != null)

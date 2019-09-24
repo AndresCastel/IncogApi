@@ -28,6 +28,7 @@ namespace IncognitusBack.API.Controllers
             var result = await _RosterService.GetAllRoster(filter);
             ros.lstRoster = result;
             roster.Data = ros;
+            roster.Succesfull = true;
             return roster;
         }
 

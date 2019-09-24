@@ -9,7 +9,7 @@ namespace IncognitusBack.Core.Specifications.RosterSP
     public class RosterSpecification : BaseSpecification<RosterC>
     {
         public RosterSpecification(string Payroll, DateTime dateTime)
-            : base(o => o.Payroll == Payroll && o.Date.Date == dateTime.Date )
+            : base(o => o.Payroll.TrimStart(new Char[] { '0' }) == Payroll.TrimStart(new Char[] { '0' }) && o.Date.Date == dateTime.Date )
         {
         }
 
