@@ -4,6 +4,7 @@ using IncognitusBack.Core.Entities;
 using IncognitusBack.Core.Interfaces;
 using IncognitusBack.Core.Specifications;
 using IncognitusBack.Core.Specifications.RosterSP;
+using IncogUtils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -33,21 +34,19 @@ namespace IncognitusBack.API.Services
                 switch (filter.filter)
                 {
                     case "All":
-                        TimeSheetSpecification timeSheetSpecificationall = new TimeSheetSpecification(filter.DateGridFilter);
+                        TimeSheetSpecification timeSheetSpecificationall = new TimeSheetSpecification(General.CastStringtoDateTime(filter.DateGridFilter));
                         lst = await _TimeRepository.ListAllTimeSheetAsyncSpec(timeSheetSpecificationall);
                         break;
                     case "Employee":
-                        var RosterSpDate = new TimeSheetSpecification(false, filter.Employee, filter.DateGridFilter);
+                        var RosterSpDate = new TimeSheetSpecification(false, filter.Employee, General.CastStringtoDateTime(filter.DateGridFilter));
                         lst = await _TimeRepository.ListAllTimeSheetAsyncSpec(RosterSpDate);
                         break;
                     case "Export":
-                        var Datefrom = Convert.ToDateTime(filter.DateFrom.ToShortDateString()); //this sets time to 00:00:00
-                        var Dateto = Convert.ToDateTime(filter.DateTo.ToShortDateString());
-                        var RosterSpExpor = new TimeSheetSpecification(false, Datefrom, Dateto);
+                        var RosterSpExpor = new TimeSheetSpecification(false, General.CastStringtoDateTime(filter.DateFrom), General.CastStringtoDateTime(filter.DateTo));
                         lst = await _TimeRepository.ListAllTimeSheetAsyncSpec(RosterSpExpor);
                         break;
                     default:
-                        TimeSheetSpecification timeSheetSpecificationdef = new TimeSheetSpecification(filter.DateGridFilter);
+                        TimeSheetSpecification timeSheetSpecificationdef = new TimeSheetSpecification(General.CastStringtoDateTime(filter.DateGridFilter));
                         lst = await _TimeRepository.ListAllTimeSheetAsyncSpec(timeSheetSpecificationdef);
                         break;
                 }
@@ -79,6 +78,7 @@ namespace IncognitusBack.API.Services
                     tm.Break = timesheet.Break;
                     tm.StartTime = timesheet.StartTime;
                     tm.EndTime = timesheet.EndTime;
+                    tm.Active = timesheet.Active;
                     await _employeeRegisterRepository.UpdateAsync(tm);
                 }
             }
@@ -127,7 +127,7 @@ namespace IncognitusBack.API.Services
             viewModel.Payroll = Timesh.Payroll;
             viewModel.StartTime = Timesh.StartTime;
             viewModel.EndTime = Timesh.EndTime;
-            viewModel.Day = Timesh.Day;
+            viewModel.Day = Timesh.Day.ToShortDateString();
             viewModel.LabourType = Timesh.LabourType;
             viewModel.Precint = Timesh.Precint;
             viewModel.Zone = Timesh.Zone;

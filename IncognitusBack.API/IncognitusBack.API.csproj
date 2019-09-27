@@ -18,6 +18,7 @@
   <ItemGroup>
     <ProjectReference Include="..\IncognitusBack.Core\IncognitusBack.Core.csproj" />
     <ProjectReference Include="..\IncognitusBack.DataAccess\IncognitusBack.DataAccess.csproj" />
+    <ProjectReference Include="..\IncogUtils\IncogUtils.csproj" />
   </ItemGroup>
 
 </Project>

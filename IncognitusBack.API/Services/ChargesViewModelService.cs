@@ -2,6 +2,7 @@
 using IncognitusBack.API.ViewModels;
 using IncognitusBack.Core.Entities;
 using IncognitusBack.Core.Interfaces;
+using IncogUtils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -80,7 +81,7 @@ namespace IncognitusBack.API.Services
             viewModel.Area = roster.Area;
             viewModel.Break = roster.Break;
             viewModel.Confirm = roster.Confirm;
-            viewModel.Date = roster.Date;
+            viewModel.Date = General.CastStringtoDateTime(roster.Date);
             viewModel.Day = roster.Day;
             viewModel.Employee = roster.Employee;
             viewModel.EndTime = roster.EndTime;

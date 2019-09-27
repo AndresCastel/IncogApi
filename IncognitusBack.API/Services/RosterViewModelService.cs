@@ -5,6 +5,7 @@ using IncognitusBack.Core.Entities.Roster;
 using IncognitusBack.Core.Interfaces;
 using IncognitusBack.Core.Specifications;
 using IncognitusBack.Core.Specifications.RosterSP;
+using IncogUtils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,21 +27,19 @@ namespace IncognitusBack.API.Services
             switch (filter.filter)
             {
                 case "All":
-                    RosterSpecification timeSheetSpecificationall = new RosterSpecification(filter.DateGridFilter);
+                    RosterSpecification timeSheetSpecificationall = new RosterSpecification(General.CastStringtoDateTime(filter.DateGridFilter));
                     lstroster = await _RosterRepository.ListAsync(timeSheetSpecificationall);
                     break;
                 case "Employee":
-                    var RosterSpemployee = new RosterSpecification(filter.Employee, filter.DateGridFilter);
+                    var RosterSpemployee = new RosterSpecification(filter.Employee, General.CastStringtoDateTime(filter.DateGridFilter));
                     lstroster = await _RosterRepository.ListAsync(RosterSpemployee);
                     break;
                 case "Export":
-                    var Datefrom = Convert.ToDateTime(filter.DateFrom.ToShortDateString()); //this sets time to 00:00:00
-                    var Dateto = Convert.ToDateTime(filter.DateTo.ToShortDateString());
-                    var RosterSpExpor = new RosterSpecification(Datefrom, Dateto);
+                    var RosterSpExpor = new RosterSpecification(General.CastStringtoDateTime(filter.DateFrom), General.CastStringtoDateTime(filter.DateTo));
                     lstroster = await _RosterRepository.ListAsync(RosterSpExpor);
                     break;
                 default:
-                    RosterSpecification timeSheetSpecificationdef = new RosterSpecification(filter.DateGridFilter);
+                    RosterSpecification timeSheetSpecificationdef = new RosterSpecification(General.CastStringtoDateTime(filter.DateGridFilter));
                     lstroster = await _RosterRepository.ListAsync(timeSheetSpecificationdef);
                     break;
             }
@@ -64,7 +63,7 @@ namespace IncognitusBack.API.Services
             viewModel.Area = Roster.Area;
             viewModel.Break = Roster.Break;
             viewModel.Confirm = Roster.Confirm;
-            viewModel.Date = Roster.Date;
+            viewModel.Date = Roster.Date.ToShortDateString();
             viewModel.Day = Roster.Day;
             viewModel.Payroll = Roster.Payroll;
             viewModel.Employee = Roster.Employee;
@@ -86,7 +85,7 @@ namespace IncognitusBack.API.Services
             viewModel.Area = Roster.Area;
             viewModel.Break = Roster.Break;
             viewModel.Confirm = Roster.Confirm;
-            viewModel.Date = Roster.Date;
+            viewModel.Date = General.CastStringtoDateTime(Roster.Date);
             viewModel.Day = Roster.Day;
             viewModel.Payroll = Roster.Payroll;
             viewModel.Employee = Roster.Employee;

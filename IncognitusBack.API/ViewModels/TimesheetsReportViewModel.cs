@@ -10,7 +10,7 @@ namespace IncognitusBack.API.ViewModels
         public string Payroll { get; set; }
         public string Employee { get; set; }
         public string LastName { get; set; }
-        public DateTime Day { get; set; }
+        public string Day { get; set; }
         public string StartTime { get; set; }
         public string EndTime { get; set; }
         public int Break { get; set; }

@@ -32,6 +32,18 @@ namespace IncognitusBack.API.Controllers
             return roster;
         }
 
+        [HttpPost("test")]
+        public async Task<MessageResponseViewModel<string>> Getdate(TestObjectVM test)
+        {
+           // string test2 ="";
+            MessageResponseViewModel<string> roster = new MessageResponseViewModel<string>();
+           string test2 =  test.Datestring + " " + test.Date.ToString() + " " + test.Date.Date.ToString();
+            DateTime oDate = DateTime.ParseExact(test.Datestring, "yyyy-MM-dd", null);
+            roster.Succesfull = true;
+            roster.Message = test2 + "After: " + oDate.ToString();
+            return roster;
+        }
+
         [HttpPost("set")]
         public async Task<MessageResponseViewModel<bool>> SetRoster(RosterCViewModel roster)
         {

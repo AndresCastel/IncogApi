@@ -9,11 +9,15 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "API", "API", "{14DD161B-30D
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Data Access", "Data Access", "{08565D9B-2762-47CD-9123-0FF1E18617B1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IncognitusBack.DataAccess", "IncognitusBack.DataAccess\IncognitusBack.DataAccess.csproj", "{5D759E78-ACDC-452E-A832-123EEE111119}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IncognitusBack.DataAccess", "IncognitusBack.DataAccess\IncognitusBack.DataAccess.csproj", "{5D759E78-ACDC-452E-A832-123EEE111119}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Model", "Model", "{45137972-EB91-4AF6-9597-F77ECBA52B44}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IncognitusBack.Core", "IncognitusBack.Core\IncognitusBack.Core.csproj", "{D22F4E27-3D1D-4CBF-9CF5-13E6E57E6CDA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IncognitusBack.Core", "IncognitusBack.Core\IncognitusBack.Core.csproj", "{D22F4E27-3D1D-4CBF-9CF5-13E6E57E6CDA}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Framework", "Framework", "{1B22F37A-26D1-4324-A18A-9393535D20FB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IncogUtils", "IncogUtils\IncogUtils.csproj", "{D6D2A275-2255-4A04-8C17-1E80DF7D864B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +37,10 @@ Global
 		{D22F4E27-3D1D-4CBF-9CF5-13E6E57E6CDA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D22F4E27-3D1D-4CBF-9CF5-13E6E57E6CDA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D22F4E27-3D1D-4CBF-9CF5-13E6E57E6CDA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D6D2A275-2255-4A04-8C17-1E80DF7D864B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D6D2A275-2255-4A04-8C17-1E80DF7D864B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D6D2A275-2255-4A04-8C17-1E80DF7D864B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D6D2A275-2255-4A04-8C17-1E80DF7D864B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -41,6 +49,7 @@ Global
 		{612DAED9-29C7-4272-92DE-C4CB18AEF7BC} = {14DD161B-30D3-4F5A-A4DF-DCE8205F9234}
 		{5D759E78-ACDC-452E-A832-123EEE111119} = {08565D9B-2762-47CD-9123-0FF1E18617B1}
 		{D22F4E27-3D1D-4CBF-9CF5-13E6E57E6CDA} = {45137972-EB91-4AF6-9597-F77ECBA52B44}
+		{D6D2A275-2255-4A04-8C17-1E80DF7D864B} = {1B22F37A-26D1-4324-A18A-9393535D20FB}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {8979F9AC-4F2F-404D-8B46-4192EEB606B2}
