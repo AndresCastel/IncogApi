@@ -80,11 +80,28 @@ namespace IncognitusBack.API.Services
                     //Get if that employ has 
                     var EmployeeRegisterSpec = new EmployeeRegisterSpecification(employ.Id, true);
                     var employeeregister = (await _employee_RegisterRepository.ListAsync(EmployeeRegisterSpec)).FirstOrDefault();
-
+                    RosterC employroster = new RosterC();
                     //Get Roster by employ
-                    var EmployeeRoster = new RosterSpecification(employ.Payroll, General.CastStringtoDateTime(employee.Day));
-                    var employroster = (await _RosterRepository.ListAsync(EmployeeRoster)).FirstOrDefault();
-                    if (employroster == null)
+                    if(employeeregister!=null)
+                    {
+                        if(employeeregister.Type_RegisterId==1 && employeeregister.StartTime!= null && employeeregister.EndTime== null)
+                        {
+                            var EmployeeRoster = new RosterSpecification(employ.Payroll, employeeregister.Day, employeeregister.RosterId);
+                            employroster = (await _RosterRepository.ListAsync(EmployeeRoster)).FirstOrDefault();
+                        }
+                        else
+                        {
+                            var EmployeeRoster = new RosterSpecification(employ.Payroll, General.SplitCreateDate(employee.Day));
+                            employroster = (await _RosterRepository.ListAsync(EmployeeRoster)).FirstOrDefault();
+                        }
+                    }
+                    else
+                    {
+                        var EmployeeRoster = new RosterSpecification(employ.Payroll, General.SplitCreateDate(employee.Day));
+                        employroster = (await _RosterRepository.ListAsync(EmployeeRoster)).FirstOrDefault();
+                    }
+                   
+                        if (employroster == null)
                     {
                         //if is true he is not an admin
                         if (employ.RolId != 1)
@@ -112,6 +129,15 @@ namespace IncognitusBack.API.Services
 
                             }
 
+                        }
+                        else
+                        {
+                            if (employeeregister != null)
+                            {
+                                var EmployeeRosterSignIn = new RosterSpecification(employ.Payroll, employeeregister.Day);
+                                var employrosterSignIn = (await _RosterRepository.ListAsync(EmployeeRosterSignIn)).FirstOrDefault();
+                                employroster = employrosterSignIn;
+                            }
                         }
                     }
 
@@ -247,7 +273,7 @@ namespace IncognitusBack.API.Services
                     {
                         EmployeeId = Register.EmployeeId,
                         Active = Register.Active,
-                        Day = General.CastStringtoDateTime(Register.Day),
+                        Day = General.SplitCreateDate(Register.Day),
                         Payroll = Register.Payroll,
                         Type_RegisterId = Register.Type_RegisterId,
                         StartTime = Register.StartTime,
@@ -276,7 +302,7 @@ namespace IncognitusBack.API.Services
                         case 1:
                             UltimateRegister.Type_RegisterId = Register.Type_RegisterId;
                             UltimateRegister.StartTime = Register.StartTime;
-                            UltimateRegister.Day = General.CastStringtoDateTime(Register.Day);
+                            UltimateRegister.Day = General.SplitCreateDate(Register.Day);
                             UltimateRegister.Payroll = Register.Payroll;
                             UltimateRegister.Active = Register.Active;
                             UltimateRegister.RosterId = Register.RosterId;
@@ -315,7 +341,7 @@ namespace IncognitusBack.API.Services
                             {
                                 EmployeeId = Register.EmployeeId,
                                 Active = true,
-                                Day = General.CastStringtoDateTime(Register.Day),
+                                Day = General.SplitCreateDate(Register.Day),
                                 Payroll = Register.Payroll,
                                 Type_RegisterId = Register.Type_RegisterId,
                                 RosterId = Register.RosterId
@@ -404,7 +430,7 @@ namespace IncognitusBack.API.Services
             viewModel.Area = Roster.Area;
             viewModel.Break = Roster.Break;
             viewModel.Confirm = Roster.Confirm;
-            viewModel.Date = Roster.Date.ToShortTimeString();
+            viewModel.Date = Roster.Date.ToShortDateString();
             viewModel.Day = Roster.Day;
             viewModel.Payroll = Roster.Payroll;
             viewModel.Employee = Roster.Employee;
@@ -439,7 +465,7 @@ namespace IncognitusBack.API.Services
             viewModel.Id = employeereg.Id;
             viewModel.StartTime = employeereg.StartTime;
             viewModel.EndTime = employeereg.EndTime;
-            viewModel.Day = General.CastStringtoDateTime(employeereg.Day);
+            viewModel.Day = General.SplitCreateDate(employeereg.Day);
             viewModel.Payroll = employeereg.Payroll;
             viewModel.Type_RegisterId = employeereg.Type_RegisterId;
             viewModel.Active = employeereg.Active;

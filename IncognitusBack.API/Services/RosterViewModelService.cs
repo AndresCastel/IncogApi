@@ -27,19 +27,19 @@ namespace IncognitusBack.API.Services
             switch (filter.filter)
             {
                 case "All":
-                    RosterSpecification timeSheetSpecificationall = new RosterSpecification(General.CastStringtoDateTime(filter.DateGridFilter));
+                    RosterSpecification timeSheetSpecificationall = new RosterSpecification(General.SplitCreateDate(filter.DateGridFilter));
                     lstroster = await _RosterRepository.ListAsync(timeSheetSpecificationall);
                     break;
                 case "Employee":
-                    var RosterSpemployee = new RosterSpecification(filter.Employee, General.CastStringtoDateTime(filter.DateGridFilter));
+                    var RosterSpemployee = new RosterSpecification(filter.Employee, General.SplitCreateDate(filter.DateGridFilter));
                     lstroster = await _RosterRepository.ListAsync(RosterSpemployee);
                     break;
                 case "Export":
-                    var RosterSpExpor = new RosterSpecification(General.CastStringtoDateTime(filter.DateFrom), General.CastStringtoDateTime(filter.DateTo));
+                    var RosterSpExpor = new RosterSpecification(General.SplitCreateDate(filter.DateFrom), General.SplitCreateDate(filter.DateTo));
                     lstroster = await _RosterRepository.ListAsync(RosterSpExpor);
                     break;
                 default:
-                    RosterSpecification timeSheetSpecificationdef = new RosterSpecification(General.CastStringtoDateTime(filter.DateGridFilter));
+                    RosterSpecification timeSheetSpecificationdef = new RosterSpecification(General.SplitCreateDate(filter.DateGridFilter));
                     lstroster = await _RosterRepository.ListAsync(timeSheetSpecificationdef);
                     break;
             }
@@ -85,7 +85,7 @@ namespace IncognitusBack.API.Services
             viewModel.Area = Roster.Area;
             viewModel.Break = Roster.Break;
             viewModel.Confirm = Roster.Confirm;
-            viewModel.Date = General.CastStringtoDateTime(Roster.Date);
+            viewModel.Date = General.SplitCreateDate(Roster.Date);
             viewModel.Day = Roster.Day;
             viewModel.Payroll = Roster.Payroll;
             viewModel.Employee = Roster.Employee;

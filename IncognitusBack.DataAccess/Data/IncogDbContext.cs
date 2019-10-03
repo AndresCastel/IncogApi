@@ -21,7 +21,8 @@ namespace IncognitusBack.DataAccess.Data
         public DbSet<Stuff_Assign> Stuff_Assign { get; set; }
         public DbSet<Employee_Register> Employee_Register { get; set; }
         public DbQuery<TimesheetsReport> TimesheetsReport { get; set; }
-       
+        public DbQuery<WhiteboardActual> WhiteboardActual { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

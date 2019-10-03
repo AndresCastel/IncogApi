@@ -3,6 +3,7 @@ using IncognitusBack.API.ViewModels;
 using IncognitusBack.Core.Entities;
 using IncognitusBack.Core.Interfaces;
 using IncognitusBack.Core.Specifications;
+using IncognitusBack.Core.Specifications.ReportsSP;
 using IncognitusBack.Core.Specifications.RosterSP;
 using IncogUtils;
 using System;
@@ -17,13 +18,54 @@ namespace IncognitusBack.API.Services
         private readonly IAsyncRepository<Employee> _employeeRepository;
         private readonly IAsyncRepository<Employee_Register> _employeeRegisterRepository;
         private readonly IAsyncRepositoryNormal<TimesheetsReport> _TimeRepository;
-        public ReportsViewModelService(IAsyncRepositoryNormal<TimesheetsReport> TimeRepository, IAsyncRepository<Employee_Register> employeeRegisterRepository)
+        private readonly IAsyncRepositoryNormal<WhiteboardActual> _WhiteboardRepository;
+        public ReportsViewModelService(IAsyncRepositoryNormal<TimesheetsReport> TimeRepository, IAsyncRepository<Employee_Register> employeeRegisterRepository,
+            IAsyncRepositoryNormal<WhiteboardActual> WhiteboardRepository)
         {
+            _WhiteboardRepository = WhiteboardRepository;
             _TimeRepository = TimeRepository;
             _employeeRegisterRepository = employeeRegisterRepository;
         }
 
-  
+        public async Task<List<WhiteboardActualViewModel>> GetWhiteBoard(FilterParametersWhiteboard filter)
+        {
+            List<WhiteboardActual> lst = new List<WhiteboardActual>();
+            List<WhiteboardActualViewModel> lsttime = new List<WhiteboardActualViewModel>();
+            try
+            {
+                switch (filter.filter)
+                {
+                    case "All":
+                        WhiteBoardSpecification WhiteboardSpecificationall = new WhiteBoardSpecification(General.SplitCreateDate(filter.DateGridFilter));
+                        lst = await _WhiteboardRepository.ListAllWhiteboardAsyncSpec(WhiteboardSpecificationall);
+                        break;
+                    //case "Employee":
+                    //    var RosterSpDate = new TimeSheetSpecification(false, filter.Employee, General.CastStringtoDateTime(filter.DateGridFilter));
+                    //    lst = await _WhiteboardRepository.ListAllTimeSheetAsyncSpec(RosterSpDate);
+                    //    break;
+                    //case "Export":
+                    //    var RosterSpExpor = new TimeSheetSpecification(false, General.CastStringtoDateTime(filter.DateFrom), General.CastStringtoDateTime(filter.DateTo));
+                    //    lst = await _TimeRepository.ListAllTimeSheetAsyncSpec(RosterSpExpor);
+                    //    break;
+                    //default:
+                    //    TimeSheetSpecification timeSheetSpecificationdef = new TimeSheetSpecification(General.CastStringtoDateTime(filter.DateGridFilter));
+                    //    lst = await _TimeRepository.ListAllTimeSheetAsyncSpec(timeSheetSpecificationdef);
+                    //    break;
+                }
+
+                foreach (var item in lst)
+                {
+                    lsttime.Add(CreateViewModelFromWhiteboard(item));
+                }
+            }
+            catch (Exception ex)
+            {
+
+
+            }
+
+            return lsttime;
+        }
 
         public async Task<List<TimesheetsReportViewModel>> GetEmployeesSignInOff(FilterParametersTimesheet filter)
         {
@@ -34,19 +76,19 @@ namespace IncognitusBack.API.Services
                 switch (filter.filter)
                 {
                     case "All":
-                        TimeSheetSpecification timeSheetSpecificationall = new TimeSheetSpecification(General.CastStringtoDateTime(filter.DateGridFilter));
+                        TimeSheetSpecification timeSheetSpecificationall = new TimeSheetSpecification(General.SplitCreateDate(filter.DateGridFilter));
                         lst = await _TimeRepository.ListAllTimeSheetAsyncSpec(timeSheetSpecificationall);
                         break;
                     case "Employee":
-                        var RosterSpDate = new TimeSheetSpecification(false, filter.Employee, General.CastStringtoDateTime(filter.DateGridFilter));
+                        var RosterSpDate = new TimeSheetSpecification(false, filter.Employee, General.SplitCreateDate(filter.DateGridFilter));
                         lst = await _TimeRepository.ListAllTimeSheetAsyncSpec(RosterSpDate);
                         break;
                     case "Export":
-                        var RosterSpExpor = new TimeSheetSpecification(false, General.CastStringtoDateTime(filter.DateFrom), General.CastStringtoDateTime(filter.DateTo));
+                        var RosterSpExpor = new TimeSheetSpecification(false, General.SplitCreateDate(filter.DateFrom), General.SplitCreateDate(filter.DateTo));
                         lst = await _TimeRepository.ListAllTimeSheetAsyncSpec(RosterSpExpor);
                         break;
                     default:
-                        TimeSheetSpecification timeSheetSpecificationdef = new TimeSheetSpecification(General.CastStringtoDateTime(filter.DateGridFilter));
+                        TimeSheetSpecification timeSheetSpecificationdef = new TimeSheetSpecification(General.SplitCreateDate(filter.DateGridFilter));
                         lst = await _TimeRepository.ListAllTimeSheetAsyncSpec(timeSheetSpecificationdef);
                         break;
                 }
@@ -135,6 +177,25 @@ namespace IncognitusBack.API.Services
             viewModel.LookedIn = Timesh.LookedIn;
             viewModel.EventName = Timesh.EventName;
             viewModel.Confirm = Timesh.Confirm;
+            return viewModel;
+        }
+
+        private WhiteboardActualViewModel CreateViewModelFromWhiteboard(WhiteboardActual Timesh)
+        {
+            var viewModel = new WhiteboardActualViewModel();
+            viewModel.Area = Timesh.Area;
+            viewModel.Name = Timesh.Name;
+            viewModel.LastName = Timesh.LastName;
+            viewModel.Payroll = Timesh.Payroll;
+            viewModel.StartTime = Timesh.StartTime;
+            viewModel.EndTime = Timesh.EndTime;
+            viewModel.RosterStart = Timesh.RosterStart;
+            viewModel.RosterEnd = Timesh.RosterEnd;
+            viewModel.Date = Timesh.Date;
+            viewModel.LabourType = Timesh.LabourType;
+            viewModel.Precint = Timesh.Precint;
+            viewModel.Zone = Timesh.Zone;
+            viewModel.EventName = Timesh.EventName;
             return viewModel;
         }
 

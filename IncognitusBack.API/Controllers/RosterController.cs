@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using IncognitusBack.API.Interfaces;
 using IncognitusBack.API.ViewModels;
+using IncogUtils;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -35,13 +37,27 @@ namespace IncognitusBack.API.Controllers
         [HttpPost("test")]
         public async Task<MessageResponseViewModel<string>> Getdate(TestObjectVM test)
         {
-           // string test2 ="";
+            // string test2 ="";
             MessageResponseViewModel<string> roster = new MessageResponseViewModel<string>();
-           string test2 =  test.Datestring + " " + test.Date.ToString() + " " + test.Date.Date.ToString();
-            DateTime oDate = DateTime.ParseExact(test.Datestring, "yyyy-MM-dd", null);
-            roster.Succesfull = true;
-            roster.Message = test2 + "After: " + oDate.ToString();
-            return roster;
+            try
+            {
+               
+                string test2 = "Local: " + test.Datestring + " " + test.Date.ToString("g", CultureInfo.CreateSpecificCulture("en-AU")) + " " + test.Date.Date.ToString();
+                // DateTime daatt = General.SplitCreateDate(test.Datestring);
+                //General.CastStringtoDateTime
+                //DateTime oDate = DateTime.ParseExact(test.Datestring, "yyyy-MM-dd", null);
+                var usCulture = new System.Globalization.CultureInfo("en-AU");
+                
+                roster.Succesfull = true;
+                roster.Message = test2 + "  Server: " + DateTime.Now.Date.ToString() + " ServerUTC " + DateTime.UtcNow.Date.ToString() ;
+                return roster;
+            }
+            catch (Exception ex)
+            {
+                roster.Succesfull = false;
+                roster.Message = ex.Message + ex.InnerException;
+                return roster;
+            }
         }
 
         [HttpPost("set")]

@@ -81,7 +81,7 @@ namespace IncognitusBack.API.Services
             viewModel.Area = roster.Area;
             viewModel.Break = roster.Break;
             viewModel.Confirm = roster.Confirm;
-            viewModel.Date = General.CastStringtoDateTime(roster.Date);
+            viewModel.Date = General.SplitCreateDate(roster.Date);
             viewModel.Day = roster.Day;
             viewModel.Employee = roster.Employee;
             viewModel.EndTime = roster.EndTime;

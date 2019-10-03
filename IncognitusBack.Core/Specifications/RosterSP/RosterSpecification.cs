@@ -13,6 +13,11 @@ namespace IncognitusBack.Core.Specifications.RosterSP
         {
         }
 
+        public RosterSpecification(string Payroll, DateTime dateTime, int IdRoster)
+           : base(o => o.Payroll.TrimStart(new Char[] { '0' }) == Payroll.TrimStart(new Char[] { '0' }) && o.Date == dateTime.Date && o.Id == IdRoster)
+        {
+        }
+
         public RosterSpecification(DateTime Date)
            : base(o => o.Date == Date)
         {

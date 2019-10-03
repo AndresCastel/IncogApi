@@ -12,6 +12,8 @@ namespace IncognitusBack.Core.Interfaces
         Task<List<T>> ListAsync(ISpecification<T> spec);
         Task<List<TimesheetsReport>> ListAllTimeSheetAsync();
         Task<List<TimesheetsReport>> ListAllTimeSheetAsyncSpec(ISpecification<TimesheetsReport> spec);
+        Task<List<WhiteboardActual>> ListAllWhiteboardAsync();
+        Task<List<WhiteboardActual>> ListAllWhiteboardAsyncSpec(ISpecification<WhiteboardActual> spec);
     }
 }
 
