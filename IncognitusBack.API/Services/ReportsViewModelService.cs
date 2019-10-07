@@ -111,16 +111,40 @@ namespace IncognitusBack.API.Services
         {
             MessageResponseViewModel<bool> result = new MessageResponseViewModel<bool>();
             EmployeeRegisterSpecification timeSheetSpecificationall = new EmployeeRegisterSpecification(timesheet.Id);
-            var tm = (await _employeeRegisterRepository.ListAsync(timeSheetSpecificationall)).FirstOrDefault();
+            
 
             try
             {
+                var tm = (await _employeeRegisterRepository.ListAsync(timeSheetSpecificationall)).FirstOrDefault();
                 if (tm != null)
                 {
-                    tm.Break = timesheet.Break;
-                    tm.StartTime = timesheet.StartTime;
-                    tm.EndTime = timesheet.EndTime;
-                    tm.Active = timesheet.Active;
+                    if(tm.Active && string.IsNullOrEmpty(tm.EndTime))
+                    {
+                        if (timesheet.Active && string.IsNullOrEmpty(timesheet.EndTime))
+                        {
+                            tm.StartTime = timesheet.StartTime;
+                            tm.EndTime = timesheet.EndTime; 
+                            tm.Break = timesheet.Break;
+                            tm.Active = timesheet.Active;
+                        }
+                        else
+                        {
+                            tm.StartTime = timesheet.StartTime;
+                            tm.EndTime = timesheet.EndTime;
+                            tm.Break = timesheet.Break;
+                            tm.Active = timesheet.Active;
+                        }
+
+                    }
+                    else
+                    {
+                        tm.Break = timesheet.Break;
+                        tm.StartTime = timesheet.StartTime;
+                        tm.EndTime = timesheet.EndTime;
+                        tm.Active = timesheet.Active;
+                    }
+
+                   
                     await _employeeRegisterRepository.UpdateAsync(tm);
                 }
             }
@@ -164,7 +188,9 @@ namespace IncognitusBack.API.Services
             var viewModel = new TimesheetsReportViewModel();
             viewModel.Area = Timesh.Area;
             viewModel.Employee = Timesh.Employee;
-            // viewModel.LastName = Timesh.LastName;
+            viewModel.LastName = Timesh.LastName;
+            viewModel.MiddleName = Timesh.MiddleName;
+            viewModel.Name = Timesh.Name;
             viewModel.Break = Timesh.Break;
             viewModel.Payroll = Timesh.Payroll;
             viewModel.StartTime = Timesh.StartTime;
@@ -186,6 +212,8 @@ namespace IncognitusBack.API.Services
             viewModel.Area = Timesh.Area;
             viewModel.Name = Timesh.Name;
             viewModel.LastName = Timesh.LastName;
+            viewModel.MiddleName = Timesh.MiddleName;
+            viewModel.Name = Timesh.Name;
             viewModel.Payroll = Timesh.Payroll;
             viewModel.StartTime = Timesh.StartTime;
             viewModel.EndTime = Timesh.EndTime;

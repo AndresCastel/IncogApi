@@ -74,9 +74,10 @@ namespace IncognitusBack.API.Services
                 //Get Employee
                 var EmployeeSpec = new EmployeeSpecification(employee.Employee.Barcode);
                 var employ = (await _employeeRepository.ListAsync(EmployeeSpec)).FirstOrDefault();
-
+                
                 if (employ != null)
                 {
+                    employRegister.employ = CreateViewModelFromEmployee(employ);
                     //Get if that employ has 
                     var EmployeeRegisterSpec = new EmployeeRegisterSpecification(employ.Id, true);
                     var employeeregister = (await _employee_RegisterRepository.ListAsync(EmployeeRegisterSpec)).FirstOrDefault();
@@ -97,6 +98,7 @@ namespace IncognitusBack.API.Services
                     }
                     else
                     {
+                        employRegister.employregister = new EmployeeRegisterViewModel();
                         var EmployeeRoster = new RosterSpecification(employ.Payroll, General.SplitCreateDate(employee.Day));
                         employroster = (await _RosterRepository.ListAsync(EmployeeRoster)).FirstOrDefault();
                     }
@@ -144,30 +146,38 @@ namespace IncognitusBack.API.Services
                     if (employeeregister != null)
                     {
                         employRegister.employregister = CreateViewModelFromEmployeeRegister(employeeregister);
-                        var StuffAsign = new StuffAssignSpecification(employeeregister.Id);
-                        var stuffassing = (await _stuffAssingRepository.ListAsync(StuffAsign));
-                        List<StuffAssignViewModel> lst = new List<StuffAssignViewModel>();
+                        //var StuffAsign = new StuffAssignSpecification(employeeregister.EmployeeId);
+                        //var stuffassing = (await _stuffAssingRepository.ListAsync(StuffAsign));
+                        //List<StuffAssignViewModel> lst = new List<StuffAssignViewModel>();
 
-                        foreach (var item in stuffassing)
-                        {
-                            lst.Add(CreateViewModelFromStuff(item));
-                        }
-                        employRegister.employregister.lstStuffAssig = lst;
-                        employRegister.employregister.Employee = CreateViewModelFromEmployee(employ);
+                        //foreach (var item in stuffassing)
+                        //{
+                        //    lst.Add(CreateViewModelFromStuff(item));
+                        //}
+                        //employRegister.employregister.lstStuffAssig = lst;
+                        //employRegister.employregister.Employee = CreateViewModelFromEmployee(employ);
                     }
-                    else
-                    {
-                        employRegister.employregister = new EmployeeRegisterViewModel();
-                        employRegister.employregister.Employee = CreateViewModelFromEmployee(employ);
-                    }
+                    //else
+                    //{
+                    //    employRegister.employregister = new EmployeeRegisterViewModel();
+                    //    employRegister.employregister.Employee = CreateViewModelFromEmployee(employ);
+                    //}
 
                     if (employroster != null)
                     {
                         employRegister.employRoster = CreateViewModelFromRoster(employroster);
                     }
 
+                    var StuffAsign = new StuffAssignSpecification(employ.Id);
+                    var stuffassing = (await _stuffAssingRepository.ListAsync(StuffAsign));
+                    List<StuffAssignViewModel> lst = new List<StuffAssignViewModel>();
 
-
+                    foreach (var item in stuffassing)
+                    {
+                        lst.Add(CreateViewModelFromStuff(item));
+                    }
+                   
+                    employRegister.employ.lstStuffAssig = lst;
 
                     ReturnMessage.Data = employRegister;
                     ReturnMessage.Succesfull = true;
@@ -265,7 +275,10 @@ namespace IncognitusBack.API.Services
                 //Validate if there is a register previously
                 var Registerespe = new EmployeeRegisterSpecification(Register.EmployeeId, true);
                 var UltimateRegister = (await _employee_RegisterRepository.ListAsync(Registerespe)).FirstOrDefault();
-
+                //Get Employee
+                //var employscpf = new EmployeeSpecification(Register.EmployeeId);
+                //var employ = (await _employeeRepository.ListAsync(employscpf)).FirstOrDefault();
+                //Register.Employee = CreateViewModelFromEmployee(employ);
 
                 if (UltimateRegister == null)
                 {
@@ -281,12 +294,14 @@ namespace IncognitusBack.API.Services
                     };
                     employee = await _employee_RegisterRepository.AddAsync(employee);
 
-                    foreach (var item in Register.lstStuffAssig)
+                   
+
+                    foreach (var item in Register.Employee.lstStuffAssig)
                     {
                         Stuff_Assign stuffassing = new Stuff_Assign()
                         {
                             Active = item.Active,
-                            Employee_RegisterId = employee.Id
+                            EmployeeId = Register.Employee.Id
                         ,
                             StuffId = item.StuffId,
                             Quantity = item.Quantity
@@ -313,12 +328,12 @@ namespace IncognitusBack.API.Services
                             {
                                 await _stuffAssingRepository.DeleteAsync(item);
                             }
-                            foreach (var item in Register.lstStuffAssig)
+                            foreach (var item in Register.Employee.lstStuffAssig)
                             {
                                 Stuff_Assign stuffassg = new Stuff_Assign()
                                 {
                                     Active = item.Active,
-                                    Employee_RegisterId = UltimateRegister.Id
+                                    EmployeeId = Register.Employee.Id
                                 ,
                                     StuffId = item.StuffId,
                                     Quantity = item.Quantity
@@ -353,12 +368,12 @@ namespace IncognitusBack.API.Services
                             {
                                 await _stuffAssingRepository.DeleteAsync(item);
                             }
-                            foreach (var item in Register.lstStuffAssig)
+                            foreach (var item in Register.Employee.lstStuffAssig)
                             {
                                 Stuff_Assign stuffassg = new Stuff_Assign()
                                 {
                                     Active = item.Active,
-                                    Employee_RegisterId = employee.Id
+                                    EmployeeId = Register.Employee.Id
                                 ,
                                     StuffId = item.StuffId,
                                     Quantity = item.Quantity
@@ -369,18 +384,18 @@ namespace IncognitusBack.API.Services
 
                         //Equipment
                         case 3:
-                            var StuffAsignEquip = new StuffAssignSpecification(UltimateRegister.Id);
+                            var StuffAsignEquip = new StuffAssignSpecification(Register.Employee.Id);
                             var stuffassingEquip = (await _stuffAssingRepository.ListAsync(StuffAsignEquip));
                             foreach (var item in stuffassingEquip)
                             {
                                 await _stuffAssingRepository.DeleteAsync(item);
                             }
-                            foreach (var item in Register.lstStuffAssig)
+                            foreach (var item in Register.Employee.lstStuffAssig)
                             {
                                 Stuff_Assign stuffassg = new Stuff_Assign()
                                 {
                                     Active = item.Active,
-                                    Employee_RegisterId = UltimateRegister.Id
+                                    EmployeeId = Register.Employee.Id
                                 ,
                                     StuffId = item.StuffId,
                                     Quantity = item.Quantity
@@ -478,7 +493,7 @@ namespace IncognitusBack.API.Services
             var viewModel = new StuffAssignViewModel();
             viewModel.Id = stuff_Assign.Id;
             viewModel.Active = stuff_Assign.Active;
-            viewModel.Employee_RegisterId = stuff_Assign.Employee_RegisterId;
+            viewModel.EmployeeId = stuff_Assign.EmployeeId;
             viewModel.Quantity = stuff_Assign.Quantity;
             viewModel.StuffId = stuff_Assign.StuffId;
             return viewModel;

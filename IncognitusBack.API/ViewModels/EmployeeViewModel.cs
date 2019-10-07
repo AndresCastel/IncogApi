@@ -16,5 +16,6 @@ namespace IncognitusBack.API.ViewModels
         public string Email { get; set; }
         public int RolId { get; set; }
         public bool Active { get; set; }
+        public List<StuffAssignViewModel> lstStuffAssig { get; set; }
     }
 }

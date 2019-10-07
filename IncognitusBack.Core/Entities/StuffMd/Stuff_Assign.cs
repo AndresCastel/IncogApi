@@ -10,9 +10,9 @@ namespace IncognitusBack.Core.Entities
         public int StuffId { get; set; }
         [ForeignKey("StuffId")]
         public Stuff Stuff { get; set; }
-        public int Employee_RegisterId { get; set; }
-        [ForeignKey("Employee_RegisterId")]
-        public Employee_Register Employee_Register { get; set; }
+        public int EmployeeId { get; set; }
+        [ForeignKey("EmployeeId")]
+        public Employee Employee { get; set; }
         public int Quantity { get; set; }
         public bool Active { get; set; }
     }

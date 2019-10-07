@@ -16,7 +16,6 @@ namespace IncognitusBack.API.ViewModels
         public string EndTime { get; set; }
         public int Break { get; set; }
         public bool Active { get; set; }
-        public List<StuffAssignViewModel> lstStuffAssig { get; set; }
         public int RosterId { get; set; }
         public RosterCViewModel Roster { get; set; }
     }
