@@ -322,7 +322,7 @@ namespace IncognitusBack.API.Services
                             UltimateRegister.Active = Register.Active;
                             UltimateRegister.RosterId = Register.RosterId;
                             await _employee_RegisterRepository.UpdateAsync(UltimateRegister);
-                            var StuffAsign = new StuffAssignSpecification(UltimateRegister.Id);
+                            var StuffAsign = new StuffAssignSpecification(UltimateRegister.EmployeeId);
                             var stuffassing = (await _stuffAssingRepository.ListAsync(StuffAsign));
                             foreach (var item in stuffassing)
                             {
@@ -362,7 +362,7 @@ namespace IncognitusBack.API.Services
                                 RosterId = Register.RosterId
                     };
                             employee = await _employee_RegisterRepository.AddAsync(employee);
-                            var StuffAsignOff = new StuffAssignSpecification(UltimateRegister.Id);
+                            var StuffAsignOff = new StuffAssignSpecification(UltimateRegister.EmployeeId);
                             var stuffassingoff = (await _stuffAssingRepository.ListAsync(StuffAsignOff));
                             foreach (var item in stuffassingoff)
                             {

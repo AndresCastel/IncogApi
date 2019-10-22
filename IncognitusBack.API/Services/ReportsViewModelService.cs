@@ -129,19 +129,48 @@ namespace IncognitusBack.API.Services
                         }
                         else
                         {
+                            tm.Type_RegisterId = 2;
                             tm.StartTime = timesheet.StartTime;
                             tm.EndTime = timesheet.EndTime;
                             tm.Break = timesheet.Break;
                             tm.Active = timesheet.Active;
+                            //Create new Register
+                            Employee_Register employee = new Employee_Register()
+                            {
+                                EmployeeId = tm.EmployeeId,
+                                Active = true,
+                                Day = tm.Day,
+                                Payroll = tm.Payroll,
+                                Type_RegisterId = 2,
+                                StartTime = null,
+                                RosterId = tm.RosterId
+                            };
+                            employee = await _employeeRegisterRepository.AddAsync(employee);
                         }
 
                     }
                     else
                     {
-                        tm.Break = timesheet.Break;
-                        tm.StartTime = timesheet.StartTime;
-                        tm.EndTime = timesheet.EndTime;
-                        tm.Active = timesheet.Active;
+                        if (timesheet.Active && string.IsNullOrEmpty(timesheet.EndTime))
+                        {
+                            tm.StartTime = timesheet.StartTime;
+                            tm.EndTime = null;
+                            tm.Type_RegisterId = 1;
+                            tm.Break = timesheet.Break;
+                            tm.Active = timesheet.Active;
+                            var Registerespe = new EmployeeRegisterSpecification(tm.EmployeeId, true);
+                            var UltimateRegister = (await _employeeRegisterRepository.ListAsync(Registerespe)).FirstOrDefault();
+                            await _employeeRegisterRepository.DeleteAsync(UltimateRegister);
+                        }
+                        else
+                        {
+                            tm.Type_RegisterId = 2;
+                            tm.StartTime = timesheet.StartTime;
+                            tm.EndTime = timesheet.EndTime;
+                            tm.Break = timesheet.Break;
+                            tm.Active = timesheet.Active;
+                            
+                        }
                     }
 
                    
